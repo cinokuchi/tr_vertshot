@@ -1,0 +1,12 @@
+# Ignore everything by default
+*
+
+# Allows non-ignored exceptions to appear in subdirectories:
+!*/
+
+# non-ignored exceptions:
+!.gitignore
+!.git
+!README.md
+!maps/tr_vertshot.vmf
+!scripts/vscripts/*
