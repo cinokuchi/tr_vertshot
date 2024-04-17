@@ -141,6 +141,12 @@ function toggleSession()
 		stopSession()
 }
 
+function restartGame(){
+	local command = "mp_restartgame_immediate 1"
+	EntFire("point_clientcommand", "command", command, -1, activator)
+	EntFire("start_sound", "PlaySound", "")
+}
+
 function togglePrecision(){
 	if(!cheatsOn){
 		local command = "sv_cheats 1"
