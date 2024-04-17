@@ -202,12 +202,18 @@ function setTargetBounds(fov){
 }
 
 //fov is in degrees, measured as 4:3 horz aspect ratio.
-function zoom_bind(sens, fov){
-	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " +
-			fov + "; sensitivity " + sens + "\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " + DEFAULT_SOURCE_FOV +
+function zoom_bind_helper(sens, fov){
+	if(!cheatsOn){
+		local command = "sv_cheats 1"
+		EntFire("point_clientcommand", "command", command, -1, activator)
+		cheatsOn = true
+	}
+	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
+			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + DEFAULT_SOURCE_FOV +
 			"; sensitivity " + DEFAULT_SENS + "\"; bind mouse2 togglezoom"
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	setTargetBounds(fov)
+	EntFire("start_sound", "PlaySound", "")
 }
 
 lastBoundsLabel <- "hipfire_worldtext"
@@ -225,22 +231,18 @@ function hipfireBounds(){
 	EntFire("start_sound", "PlaySound", "")
 }
 function owAsheZoom(){
-	zoom_bind(0.485318, 51.774009)
+	zoom_bind_helper(0.485318, 51.774009)
 	swapBoundsText("owAshe_worldtext", "Ow Ashe zoom")
-	EntFire("start_sound", "PlaySound", "")
 }
 function apex1xZoom(){
-	zoom_bind(0.797473, 77.14284)
+	zoom_bind_helper(0.797473, 77.14284)
 	swapBoundsText("apex1x_worldtext", "Apex 1x zoom")
-	EntFire("start_sound", "PlaySound", "")
 }
 function apexRifleZoom(){
-	zoom_bind(0.709538, 70.71427)
+	zoom_bind_helper(0.709538, 70.71427)
 	swapBoundsText("apexRifle_worldtext", "Apex Rifle zoom")
-	EntFire("start_sound", "PlaySound", "")
 }
 function apex2xZoom(){
-	zoom_bind(0.462241, 49.616585)
+	zoom_bind_helper(0.462241, 49.616585)
 	swapBoundsText("apex2x_worldtext", "Apex 2x zoom")
-	EntFire("start_sound", "PlaySound", "")
 }
