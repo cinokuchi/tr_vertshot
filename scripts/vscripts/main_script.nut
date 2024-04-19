@@ -48,6 +48,14 @@ function getRhoFromSourceFOV(sourceFOV){
 	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/DEFAULT_SOURCE_FOV_RADS)
 }
 
+function enableCheats(){
+	if(!cheatsOn){
+		local command = "sv_cheats 1"
+		EntFire("point_clientcommand", "command", command, -1, activator)
+		cheatsOn = true
+	}
+}
+
 //---------------------------------------------------------------------------------------------------------------------------
 
 
@@ -148,11 +156,7 @@ function restartGame(){
 }
 
 function togglePrecision(){
-	if(!cheatsOn){
-		local command = "sv_cheats 1"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-		cheatsOn = true
-	}
+	enableCheats()
 	if(hasPrecision){
 		local command = "removecond 96"
 		EntFire("point_clientcommand", "command", command, -1, activator)
@@ -170,11 +174,7 @@ function togglePrecision(){
 }
 
 function toggleRefillOnKill(){
-	if(!cheatsOn){
-		local command = "sv_cheats 1"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-		cheatsOn = true
-	}
+	enableCheats()
 	if(hasRefillOnKill){
 		EntFire("refillOnKill_worldtext", "AddOutput", "message Refill On Kill: OFF")
 		hasRefillOnKill = false
@@ -186,10 +186,79 @@ function toggleRefillOnKill(){
 		EntFire("start_sound", "PlaySound", "")
 	}
 }
- 
+
+MAX_ZOOM_COUNT <- 6
+zoom_array <- []
 function debug()
 {
-	printl("helloworld")
+	for(local k = 0; k < MAX_ZOOM_COUNT; k++)
+		zoom_array.append(null)
+	local fileContents = FileToString("tr_vertshot.cfg")
+	if(fileContents == null) {
+		printl("[WARNING] tr_vertshot.cfg not found. Disabling zoom buttons.")
+		return
+	}
+	local lineArray = split(fileContents, "\n")
+	for(local k = 0; k < lineArray.len(); k++){
+		if (k >= MAX_ZOOM_COUNT){
+			printl("[WARNING] " + lineArray.len() + " zoom settings found. Using first " + MAX_ZOOM_COUNT)
+			break
+		}
+		local wordArray = split(lineArray[k], ",")
+		local fov
+		local sens
+		try {
+			fov = wordArray[1].tofloat()
+			sens = wordArray[2].tofloat()
+		}
+		catch(e){
+			printl("[ERROR] Could not read line \"" + lineArray[k] + "\"")
+			printl("[ERROR] Must have format \"<string>,<positive decimal>,<positive decimal>\"")
+			continue
+		}
+		EntFire("zoom_" + k + "_worldtext", "AddOutput", "message " + wordArray[0])
+		zoom_array[k] = {fov=fov,sens=sens}
+	}
+}
+
+unselected_color <- "133 135 120"
+selected_color <- "255 128 0"
+prevZoomIndex <- "default"
+default_fov <- Convars.GetFloat("fov_desired")
+default_sens <- Convars.GetFloat("sensitivity")
+function zoomBind(index){
+	if(index >= zoom_array.len() || zoom_array[index] == null){
+		EntFire("target_sound_miss", "PlaySound", "")
+		return
+	}
+	EntFire("start_sound", "PlaySound", "")
+	if(index.tostring() == prevZoomIndex)
+		return
+	enableCheats()
+	local fov = zoom_array[index].fov
+	local sens = zoom_array[index].sens
+	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
+			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov +
+			"; sensitivity " + default_sens + "\"; bind mouse2 togglezoom"
+	EntFire("point_clientcommand", "command", command, -1, activator)
+	setTargetBounds(fov)
+	EntFire("zoom_" + index + "_worldtext", "SetColor", selected_color)
+	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
+	prevZoomIndex <- index.tostring()
+}
+
+function defaultZoomBind(){
+	EntFire("start_sound", "PlaySound", "")
+	if(prevZoomIndex == "default")
+		return
+	local command = "fov_desired " + default_fov +
+		"; sensitivity " + default_sens +
+		"; bind mouse2 " + default_mouse2
+	EntFire("point_clientcommand", "command", command, -1, activator)
+	setTargetBounds(default_fov)
+	EntFire("zoom_default_worldtext", "SetColor", selected_color)
+	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
+	prevZoomIndex <- "default"
 }
 
 function setTargetBounds(fov){
@@ -201,19 +270,17 @@ function setTargetBounds(fov){
 	EntFire("target_maker_logic_script", "RunScriptCode", "setHorzBounds(" + newHorzBounds + ")")
 }
 
+
 //fov is in degrees, measured as 4:3 horz aspect ratio.
 function zoom_bind_helper(sens, fov){
-	if(!cheatsOn){
-		local command = "sv_cheats 1"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-		cheatsOn = true
-	}
+	enableCheats()
 	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
 			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + DEFAULT_SOURCE_FOV +
 			"; sensitivity " + DEFAULT_SENS + "\"; bind mouse2 togglezoom"
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	setTargetBounds(fov)
 	EntFire("start_sound", "PlaySound", "")
+	
 }
 
 lastBoundsLabel <- "hipfire_worldtext"
