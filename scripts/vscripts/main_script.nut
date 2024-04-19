@@ -7,6 +7,7 @@ third_hit_count <- 0
 total_hit_count <- 0
 
 isOn <- false
+hasEnabledCheats <- false
 
 hasPrecision <- false
 hasRefillOnKill <- false
@@ -63,8 +64,14 @@ function getRhoFromSourceFOV(sourceFOV){
 	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
 }
 
-//---------------------------------------------------------------------------------------------------------------------------
+function enableCheats(){
+	if(!hasEnabledCheats){
+		EntFire("point_clientcommand", "command", "sv_cheats 1", -1, activator)
+		hasEnabledCheats = true
+	}
+}
 
+//---------------------------------------------------------------------------------------------------------------------------
 
 function spawnTarget()
 {
@@ -171,6 +178,7 @@ function togglePrecision(){
 		EntFire("stop_sound", "PlaySound", "")
 	}
 	else{
+		enableCheats()
 		local command = "addcond 96"
 		EntFire("point_clientcommand", "command", command, -1, activator)
 		EntFire("precision_worldtext", "AddOutput", "message Precision: ON")
@@ -186,6 +194,7 @@ function toggleRefillOnKill(){
 		EntFire("stop_sound", "PlaySound", "")
 	}
 	else{
+		enableCheats()
 		EntFire("refillOnKill_worldtext", "AddOutput", "message Refill On Kill: ON")
 		hasRefillOnKill = true
 		EntFire("start_sound", "PlaySound", "")
@@ -249,7 +258,6 @@ function debug(){
 
 //Select a zoom bind
 function zoomBind(index){
-
 	//if this zoom bind is unset, play invalid sound and do nothing
 	if(index >= zoom_array.len() || zoom_array[index] == null){
 		EntFire("target_sound_miss", "PlaySound", "")
@@ -263,6 +271,7 @@ function zoomBind(index){
 	if(index.tostring() == prevZoomIndex)
 		return
 		
+	enableCheats()
 	//set up aliases and bind mouse2 to zoom
 	local fov = zoom_array[index].fov
 	local sens = zoom_array[index].sens
@@ -287,6 +296,7 @@ function defaultZoomBind(){
 	EntFire("start_sound", "PlaySound", "")
 	if(prevZoomIndex == "default")
 		return
+	enableCheats()
 	local command = "fov_desired " + default_fov +
 		"; sensitivity " + default_sens +
 		"; unbind mouse2"

@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10038"
-	"mapversion" "246"
+	"mapversion" "252"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "246"
+	"mapversion" "252"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -9892,7 +9892,6 @@ entity
 	"spawnflags" "1"
 	connections
 	{
-		"OnMapSpawn" "point_clientcommandCommand`sv cheats 1`0-1"
 		"OnMapSpawn" "main_logic_scriptRunScriptCodeinitZoomBinds()0-1"
 		"OnMapSpawn" "tonemapSetBloomScale00-1"
 		"OnMapSpawn" "tonemapSetAutoExposureMax10-1"
