@@ -45,11 +45,11 @@ m_hSpawner.__KeyValueFromString( "EntityTemplate", "targetTemplate")
 //Approximate headposition standing on edge of platform.
 TARGET_ORIGIN <- Vector(536, 0, 1090)
 
-rho <- 640
+rho <- 0
 lastDestroyedU <- 0.0
 lastDestroyedVert <- 0.0
-uBounds <- getUFromHorz(deg2Rad(53.13))
-vertBounds <- deg2Rad(36.87)
+uBounds <- 0.0
+vertBounds <- 0.0
 
 //------------------------------------------------------------------------------------------------------------------------
 function setRho(newRho){
@@ -61,7 +61,7 @@ function setHorzBounds(newHorzBounds){
 }
 
 function setVertBounds(newVertBounds){
-	vertBounds = vertBounds
+	vertBounds = newVertBounds
 }
 
 function setLastTargetLocation(uAngle, vertAngle){

@@ -8,12 +8,17 @@ total_hit_count <- 0
 
 isOn <- false
 
-cheatsOn <- false
 hasPrecision <- false
 hasRefillOnKill <- false
 
-DEFAULT_SENS <- 1
-DEFAULT_SOURCE_FOV <- 90
+unselected_color <- "133 135 120"
+selected_color <- "255 128 0"
+prevZoomIndex <- "default"
+default_fov <- 0.0
+default_sens <- 0.0
+
+MAX_ZOOM_COUNT <- 6
+zoom_array <- []
 
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -26,34 +31,36 @@ function deg2Rad(deg)
 	return deg / 180.0 * PI
 }
 
-//Takes degrees and returns radians
-//This formula calculates the VFOV,
-//divides by 2 to get offset from screen middle to screen top/bottom,
-//then divides by 2 again because my wrist hurts from these flicks bro.
+/*
+	Takes degrees and returns radians
+	This formula calculates the VFOV, then
+		divides by 2 to get offset from screen middle to screen top/bottom
+*/
 function getVertBoundsFromSourceFOV(sourceFOV){
-	return atan(3 * tan(deg2Rad(sourceFOV/2)) / 4) / 2
+	return atan(3 * tan(deg2Rad(sourceFOV/2)) / 4)
 }
 
-//Takes degrees and returns radians
-//This formula calculates the HFOV,
-//divides by 2 to get offset from screen middle to screen left/right,
-//then divides by 2 again because my wrist hurts from these flicks bro.
+/*
+	Takes degrees and returns radians
+	This formula calculates the HFOV,
+		divides by 2 to get offset from screen middle to screen left/right,
+		and divides by 2 again just to force a more narrow spawn area.
+*/
 function getHorzBoundsFromSourceFOV(sourceFOV){
 	return atan(4 * tan(deg2Rad(sourceFOV/2)) / 3) / 2
 }
 
-//Takes degrees and returns hammer units
-DEFAULT_SOURCE_FOV_RADS <- deg2Rad(DEFAULT_SOURCE_FOV)
+HALF_OF_PI <- deg2Rad(90)
+/*
+	Takes degrees and returns hammer units.
+	Given an FOV, returns a target distance to keep
+		apparent size roughly the same.
+	32 and HALF_OF_PI are arbitrary - I decided
+		640 hammer units of distance when source FOV is 90 deg are good numbers.
+		The rest comes from the visual angle formula.
+*/
 function getRhoFromSourceFOV(sourceFOV){
-	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/DEFAULT_SOURCE_FOV_RADS)
-}
-
-function enableCheats(){
-	if(!cheatsOn){
-		local command = "sv_cheats 1"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-		cheatsOn = true
-	}
+	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -156,7 +163,6 @@ function restartGame(){
 }
 
 function togglePrecision(){
-	enableCheats()
 	if(hasPrecision){
 		local command = "removecond 96"
 		EntFire("point_clientcommand", "command", command, -1, activator)
@@ -174,7 +180,6 @@ function togglePrecision(){
 }
 
 function toggleRefillOnKill(){
-	enableCheats()
 	if(hasRefillOnKill){
 		EntFire("refillOnKill_worldtext", "AddOutput", "message Refill On Kill: OFF")
 		hasRefillOnKill = false
@@ -187,23 +192,35 @@ function toggleRefillOnKill(){
 	}
 }
 
-MAX_ZOOM_COUNT <- 6
-zoom_array <- []
-function debug()
+//Read in zoom values from file
+function initZoomBinds()
 {
+	//get current fov and sensitivity, use as default
+	default_fov = Convars.GetFloat("fov_desired")
+	default_sens = Convars.GetFloat("sensitivity")
+	
+	//initialize zoom_array.
 	for(local k = 0; k < MAX_ZOOM_COUNT; k++)
 		zoom_array.append(null)
+		
+	//load file
 	local fileContents = FileToString("tr_vertshot.cfg")
 	if(fileContents == null) {
 		printl("[WARNING] tr_vertshot.cfg not found. Disabling zoom buttons.")
 		return
 	}
+	
+	//parse file
 	local lineArray = split(fileContents, "\n")
 	for(local k = 0; k < lineArray.len(); k++){
+	
+		//Ignore excess zoom settings
 		if (k >= MAX_ZOOM_COUNT){
 			printl("[WARNING] " + lineArray.len() + " zoom settings found. Using first " + MAX_ZOOM_COUNT)
 			break
 		}
+		
+		//read in fov and sens
 		local wordArray = split(lineArray[k], ",")
 		local fov
 		local sens
@@ -216,44 +233,63 @@ function debug()
 			printl("[ERROR] Must have format \"<string>,<positive decimal>,<positive decimal>\"")
 			continue
 		}
+		
+		//set labels, fov, and sens
 		EntFire("zoom_" + k + "_worldtext", "AddOutput", "message " + wordArray[0])
 		zoom_array[k] = {fov=fov,sens=sens}
 	}
+	
+	//Initializes target bounds based off of hipfire fov
+	setTargetBounds(default_fov)
 }
 
-unselected_color <- "133 135 120"
-selected_color <- "255 128 0"
-prevZoomIndex <- "default"
-default_fov <- Convars.GetFloat("fov_desired")
-default_sens <- Convars.GetFloat("sensitivity")
+function debug(){
+	printl("debug fired")
+}
+
+//Select a zoom bind
 function zoomBind(index){
+
+	//if this zoom bind is unset, play invalid sound and do nothing
 	if(index >= zoom_array.len() || zoom_array[index] == null){
 		EntFire("target_sound_miss", "PlaySound", "")
 		return
 	}
+	
+	//otherwise, play select sound
 	EntFire("start_sound", "PlaySound", "")
+	
+	//if re-selecting already selected option, do nothing
 	if(index.tostring() == prevZoomIndex)
 		return
-	enableCheats()
+		
+	//set up aliases and bind mouse2 to zoom
 	local fov = zoom_array[index].fov
 	local sens = zoom_array[index].sens
 	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
 			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov +
 			"; sensitivity " + default_sens + "\"; bind mouse2 togglezoom"
 	EntFire("point_clientcommand", "command", command, -1, activator)
+	
+	//Scale target distance and spawn offsets based off of fov
 	setTargetBounds(fov)
+	
+	//Highlight selected zoom option
 	EntFire("zoom_" + index + "_worldtext", "SetColor", selected_color)
 	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
+	
+	//Remember last highlighted zoom option
 	prevZoomIndex <- index.tostring()
 }
 
+//De-select zoom bind
 function defaultZoomBind(){
 	EntFire("start_sound", "PlaySound", "")
 	if(prevZoomIndex == "default")
 		return
 	local command = "fov_desired " + default_fov +
 		"; sensitivity " + default_sens +
-		"; bind mouse2 " + default_mouse2
+		"; unbind mouse2"
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	setTargetBounds(default_fov)
 	EntFire("zoom_default_worldtext", "SetColor", selected_color)
@@ -261,6 +297,7 @@ function defaultZoomBind(){
 	prevZoomIndex <- "default"
 }
 
+//Scale target distance and spawn offsets based off of fov
 function setTargetBounds(fov){
 	local newRho = getRhoFromSourceFOV(fov)
 	local newVertBounds = getVertBoundsFromSourceFOV(fov)
@@ -268,48 +305,4 @@ function setTargetBounds(fov){
 	EntFire("target_maker_logic_script", "RunScriptCode", "setRho(" + newRho + ")")
 	EntFire("target_maker_logic_script", "RunScriptCode", "setVertBounds(" + newVertBounds + ")")
 	EntFire("target_maker_logic_script", "RunScriptCode", "setHorzBounds(" + newHorzBounds + ")")
-}
-
-
-//fov is in degrees, measured as 4:3 horz aspect ratio.
-function zoom_bind_helper(sens, fov){
-	enableCheats()
-	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
-			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + DEFAULT_SOURCE_FOV +
-			"; sensitivity " + DEFAULT_SENS + "\"; bind mouse2 togglezoom"
-	EntFire("point_clientcommand", "command", command, -1, activator)
-	setTargetBounds(fov)
-	EntFire("start_sound", "PlaySound", "")
-	
-}
-
-lastBoundsLabel <- "hipfire_worldtext"
-lastBoundsDesc <- "Hipfire Bounds: "
-function swapBoundsText(label, description){
-	EntFire(lastBoundsLabel, "AddOutput", "message " + lastBoundsDesc + ": OFF")
-	EntFire(label, "AddOutput", "message " + description + ": ON")
-	lastBoundsLabel = label
-	lastBoundsDesc = description
-}
-
-function hipfireBounds(){
-	setTargetBounds(DEFAULT_SOURCE_FOV)
-	swapBoundsText("hipfire_worldtext", "Hipfire bounds")
-	EntFire("start_sound", "PlaySound", "")
-}
-function owAsheZoom(){
-	zoom_bind_helper(0.485318, 51.774009)
-	swapBoundsText("owAshe_worldtext", "Ow Ashe zoom")
-}
-function apex1xZoom(){
-	zoom_bind_helper(0.797473, 77.14284)
-	swapBoundsText("apex1x_worldtext", "Apex 1x zoom")
-}
-function apexRifleZoom(){
-	zoom_bind_helper(0.709538, 70.71427)
-	swapBoundsText("apexRifle_worldtext", "Apex Rifle zoom")
-}
-function apex2xZoom(){
-	zoom_bind_helper(0.462241, 49.616585)
-	swapBoundsText("apex2x_worldtext", "Apex 2x zoom")
 }
