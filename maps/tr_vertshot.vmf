@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10038"
-	"mapversion" "252"
+	"mapversion" "255"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "252"
+	"mapversion" "255"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -1595,13 +1595,14 @@ entity
 	"Template04" "target_3"
 	"Template05" "target_miss"
 	"Template06" "target_logic_script"
-	"vscripts" "target_template_script.nut"
+	"vscripts" "target_maker_script.nut"
 	"origin" "968 -896 140"
 	editor
 	{
 		"color" "220 30 220"
 		"visgroupshown" "1"
 		"visgroupautoshown" "1"
+		"comments" "This is a point_template entity, but its associated script generates a env_entity_maker as well as powering the point_template"
 		"logicalpos" "[0 0]"
 	}
 }
@@ -6683,21 +6684,6 @@ entity
 		"visgroupshown" "1"
 		"visgroupautoshown" "1"
 		"logicalpos" "[0 5000]"
-	}
-}
-entity
-{
-	"id" "6112"
-	"classname" "logic_script"
-	"targetname" "target_maker_logic_script"
-	"vscripts" "target_maker_script.nut"
-	"origin" "896 -832 64"
-	editor
-	{
-		"color" "220 30 220"
-		"visgroupshown" "1"
-		"visgroupautoshown" "1"
-		"logicalpos" "[0 3500]"
 	}
 }
 entity

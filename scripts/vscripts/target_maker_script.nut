@@ -108,10 +108,6 @@ function makeTarget()
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 }
 
-function sendLocation(){
-	EntFireByHandle(activator, "RunScriptCode", "saveLocation(" + lastCreatedU + "," + lastCreatedVert + ")", 0, self, self)
-}
-
 /*
 //Make target at a specific horz and vert
 //for debug purposes
@@ -127,3 +123,29 @@ function makeTargetAtLocation(horz, vert)
 			0)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 }*/
+
+//------------------------------------------------------------------------------------------------------------------------
+
+function PreSpawnInstance( entityClass, entityName )
+{
+	return null
+}
+
+function PostSpawn( entities )
+{
+	//registers the just-spawned targetPieces to the target_logic_script
+	//so that they may be deleted on hit.
+	local logic_script_handle = entities["target_logic_script"]
+	EntFireByHandle(logic_script_handle,
+		"RunScriptCode",
+		"saveLocation(" + lastCreatedU + "," + lastCreatedVert + ")",
+		0,
+		activator,
+		self
+	)
+	foreach( targetname, handle in entities )
+	{
+		if(targetname != "target_logic_script")
+			EntFireByHandle(logic_script_handle, "RunScriptCode", "register()", 0, activator, handle)
+	}
+}

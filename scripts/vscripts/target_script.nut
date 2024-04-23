@@ -19,13 +19,14 @@ function destroyTarget()
 function getHit(index)
 {
 	EntFire("main_logic_script", "RunScriptCode", "getHit(" + index + ")", -1, activator)
-	EntFire("target_maker_logic_script",
+	EntFire("targetTemplate",
 		"RunScriptCode",
 		"setLastTargetLocation(" + m_uAngle + "," + m_vertAngle + ")")
 	destroyTarget()
 }
 
 function saveLocation(uAngle, vertAngle){
+	//printl("saveLocation - uAngle: " + uAngle + ", vertAngle: " + vertAngle)
 	m_uAngle = uAngle
 	m_vertAngle = vertAngle
 }

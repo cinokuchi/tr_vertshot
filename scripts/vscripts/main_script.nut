@@ -82,7 +82,7 @@ function spawnTarget()
 		return
 	}
 	targetCount = targetCount + 1
-	EntFire("target_maker_logic_script", "RunScriptCode", "makeTarget()")
+	EntFire("targetTemplate", "RunScriptCode", "makeTarget()")
 }
 
 function getHit(index)
@@ -151,7 +151,7 @@ function stopSession()
 	EntFire("target_logic_script*", "RunScriptCode", "destroyTarget()")
 	EntFire("stop_sound", "PlaySound", "")
 	EntFire("button_worldtext", "AddOutput", "message PLAY")
-	EntFire("target_maker_logic_script", "RunScriptCode", "setLastTargetLocation(0,0)")
+	EntFire("targetTemplate", "RunScriptCode", "setLastTargetLocation(0,0)")
 }
 
 function toggleSession()
@@ -312,7 +312,7 @@ function setTargetBounds(fov){
 	local newRho = getRhoFromSourceFOV(fov)
 	local newVertBounds = getVertBoundsFromSourceFOV(fov)
 	local newHorzBounds = getHorzBoundsFromSourceFOV(fov)
-	EntFire("target_maker_logic_script", "RunScriptCode", "setRho(" + newRho + ")")
-	EntFire("target_maker_logic_script", "RunScriptCode", "setVertBounds(" + newVertBounds + ")")
-	EntFire("target_maker_logic_script", "RunScriptCode", "setHorzBounds(" + newHorzBounds + ")")
+	EntFire("targetTemplate", "RunScriptCode", "setRho(" + newRho + ")")
+	EntFire("targetTemplate", "RunScriptCode", "setVertBounds(" + newVertBounds + ")")
+	EntFire("targetTemplate", "RunScriptCode", "setHorzBounds(" + newHorzBounds + ")")
 }
