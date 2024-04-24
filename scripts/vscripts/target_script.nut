@@ -26,7 +26,7 @@ function getHit(index)
 }
 
 function saveLocation(uRatio, vertAngle){
-	printl("saveLocation - uRatio: " + uRatio + ", vertAngle: " + vertAngle)
+	//printl("saveLocation - uRatio: " + uRatio + ", vertAngle: " + vertAngle)
 	m_uRatio = uRatio
 	m_vertAngle = vertAngle
 }

@@ -103,7 +103,7 @@ function setFov(sourceFOV){
 function setLastTargetLocation(uRatio, vertAngle){
 	nextUOrigin = uRatio
 	nextVertOrigin = vertAngle
-	printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
+	//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 }
 
 //Provides a random u ratio in the legal bounds, in radians.
@@ -137,7 +137,7 @@ function makeTarget()
 			phi,
 			theta,
 			0)
-	printl("maker.makeTarget() - lastCreatedU: " + lastCreatedU + "; lastCreatedVert: " + lastCreatedVert)
+	//printl("maker.makeTarget() - lastCreatedU: " + lastCreatedU + "; lastCreatedVert: " + lastCreatedVert)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 }
 
