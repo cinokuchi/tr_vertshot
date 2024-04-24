@@ -23,47 +23,6 @@ zoom_array <- []
 
 //---------------------------------------------------------------------------------------------------------------------------
 
-function rad2Deg(rad)
-{
-	return rad / PI * 180
-}
-function deg2Rad(deg)
-{
-	return deg / 180.0 * PI
-}
-
-/*
-	Takes degrees and returns radians
-	This formula calculates the VFOV, then
-		divides by 2 to get offset from screen middle to screen top/bottom
-*/
-function getVertBoundsFromSourceFOV(sourceFOV){
-	return atan(3 * tan(deg2Rad(sourceFOV/2)) / 4)
-}
-
-/*
-	Takes degrees and returns radians
-	This formula calculates the HFOV,
-		divides by 2 to get offset from screen middle to screen left/right,
-		and divides by 2 again just to force a more narrow spawn area.
-*/
-function getHorzBoundsFromSourceFOV(sourceFOV){
-	return atan(4 * tan(deg2Rad(sourceFOV/2)) / 3) / 2
-}
-
-HALF_OF_PI <- deg2Rad(90)
-/*
-	Takes degrees and returns hammer units.
-	Given an FOV, returns a target distance to keep
-		apparent size roughly the same.
-	32 and HALF_OF_PI are arbitrary - I decided
-		640 hammer units of distance when source FOV is 90 deg are good numbers.
-		The rest comes from the visual angle formula.
-*/
-function getRhoFromSourceFOV(sourceFOV){
-	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
-}
-
 function enableCheats(){
 	if(!hasEnabledCheats){
 		EntFire("point_clientcommand", "command", "sv_cheats 1", -1, activator)
@@ -249,7 +208,7 @@ function initZoomBinds()
 	}
 	
 	//Initializes target bounds based off of hipfire fov
-	setTargetBounds(default_fov)
+	EntFire("targetTemplate", "RunScriptCode", "setFov(" + default_fov + ")")
 }
 
 function debug(){
@@ -281,7 +240,7 @@ function zoomBind(index){
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	
 	//Scale target distance and spawn offsets based off of fov
-	setTargetBounds(fov)
+	EntFire("targetTemplate", "RunScriptCode", "setFov(" + fov + ")")
 	
 	//Highlight selected zoom option
 	EntFire("zoom_" + index + "_worldtext", "SetColor", selected_color)
@@ -301,18 +260,8 @@ function defaultZoomBind(){
 		"; sensitivity " + default_sens +
 		"; unbind mouse2"
 	EntFire("point_clientcommand", "command", command, -1, activator)
-	setTargetBounds(default_fov)
+	EntFire("targetTemplate", "RunScriptCode", "setFov(" + default_fov + ")")
 	EntFire("zoom_default_worldtext", "SetColor", selected_color)
 	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
 	prevZoomIndex <- "default"
-}
-
-//Scale target distance and spawn offsets based off of fov
-function setTargetBounds(fov){
-	local newRho = getRhoFromSourceFOV(fov)
-	local newVertBounds = getVertBoundsFromSourceFOV(fov)
-	local newHorzBounds = getHorzBoundsFromSourceFOV(fov)
-	EntFire("targetTemplate", "RunScriptCode", "setRho(" + newRho + ")")
-	EntFire("targetTemplate", "RunScriptCode", "setVertBounds(" + newVertBounds + ")")
-	EntFire("targetTemplate", "RunScriptCode", "setHorzBounds(" + newHorzBounds + ")")
 }
