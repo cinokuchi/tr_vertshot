@@ -38,24 +38,6 @@ function getUFromHorz(horz){
 	return sin(horz)
 }
 
-//---------------------------------------------------------------------------------------------------------------------------
-m_hSpawner <- Entities.CreateByClassname("env_entity_maker")
-m_hSpawner.__KeyValueFromString( "EntityTemplate", "targetTemplate")
-
-//Approximate headposition standing on edge of platform.
-TARGET_ORIGIN <- Vector(536, 0, 1090)
-
-nextUOrigin <- 0.0
-nextVertOrigin <- 0.0
-rho <- 0
-uOffset <- 0.0
-vertOffset <- 0.0
-vertMin <- 0.0
-vertMax <- 0.0
-uMin <- 0.0
-uMax <- 0.0
-
-//------------------------------------------------------------------------------------------------------------------------
 /*
 	Takes degrees and returns radians
 	This formula calculates the VFOV, then
@@ -87,23 +69,85 @@ HALF_OF_PI <- deg2Rad(90)
 function getRhoFromSourceFOV(sourceFOV){
 	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
 }
+//---------------------------------------------------------------------------------------------------------------------------
+m_hSpawner <- Entities.CreateByClassname("env_entity_maker")
+m_hSpawner.__KeyValueFromString( "EntityTemplate", "targetTemplate")
+
+//Approximate headposition standing on edge of platform.
+TARGET_ORIGIN <- Vector(536, 0, 1090)
+
+nextUOrigin <- 0.0
+nextVertOrigin <- 0.0
+rho <- 0
+uOffset <- 0.0
+vertOffset <- 0.0
+vertMin <- 0.0
+vertMax <- 0.0
+uMin <- 0.0
+uMax <- 0.0
+UP <- 0
+DOWN <- 1
+walkDirection <- UP
+
+SPAWN_NEARBY <- 0
+SPAWN_WALKING <- 1
+spawnMode <- SPAWN_WALKING
+EPSILON <- 0.001 //for rounding errors
 
 //------------------------------------------------------------------------------------------------------------------------
 
 VERT_MIN <- deg2Rad(-50)
-VERT_MAX <- deg2Rad(90)
+VERT_MAX <- deg2Rad(85)
+WALK_INCREMENT <- (VERT_MAX - VERT_MIN)/20
 function setFov(sourceFOV){
 	rho <- getRhoFromSourceFOV(sourceFOV)
 	uOffset <- getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
 	vertOffset <- getVertOffsetFromSourceFOV(sourceFOV)
+	//vertMin
+	//vertMax
+	//walkIncrement
 	uMin <- -uOffset
 	uMax <- uOffset
 }
 
+function setSpawnWalking(){
+	spawnMode = SPAWN_WALKING
+}
+function setSpawnNearby(){
+	spawnMode = SPAWN_NEARBY
+}
+
+function walkSpawns(){
+	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - EPSILON)
+		walkDirection = DOWN
+	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + EPSILON)
+		walkDirection = UP
+	
+	if(walkDirection == UP){
+		nextVertOrigin = nextVertOrigin + WALK_INCREMENT
+	}
+	if(walkDirection == DOWN){
+		nextVertOrigin = nextVertOrigin - WALK_INCREMENT
+	}
+}
+
+/*
+	Callback which allows destroyed targets to inform the target_maker where the last target
+		destruction occurred.
+	Only does anything when the spawn mode is "SPAWN_NEARBY", otherwise we don't care.
+*/
 function setLastTargetLocation(uRatio, vertAngle){
-	nextUOrigin = uRatio
-	nextVertOrigin = vertAngle
-	//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
+	if(spawnMode == SPAWN_NEARBY){
+		nextUOrigin = uRatio
+		nextVertOrigin = vertAngle
+		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
+	}
+}
+
+function resetTargets(){
+	nextUOrigin = 0.0
+	nextVertOrigin = 0.0
+	walkDirection = UP
 }
 
 //Provides a random u ratio in the legal bounds, in radians.
@@ -137,8 +181,12 @@ function makeTarget()
 			phi,
 			theta,
 			0)
+	// printl("maker.makeTarget() - nextVertOrigin: " + nextVertOrigin + "; nextUOrigin: " + nextUOrigin)
 	//printl("maker.makeTarget() - lastCreatedU: " + lastCreatedU + "; lastCreatedVert: " + lastCreatedVert)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+	
+	if(spawnMode == SPAWN_WALKING)
+		walkSpawns()
 }
 
 /*

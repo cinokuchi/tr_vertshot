@@ -110,7 +110,7 @@ function stopSession()
 	EntFire("target_logic_script*", "RunScriptCode", "destroyTarget()")
 	EntFire("stop_sound", "PlaySound", "")
 	EntFire("button_worldtext", "AddOutput", "message PLAY")
-	EntFire("targetTemplate", "RunScriptCode", "setLastTargetLocation(0,0)")
+	EntFire("targetTemplate", "RunScriptCode", "resetTargets()")
 }
 
 function toggleSession()
@@ -128,11 +128,25 @@ function restartGame(){
 	EntFire("start_sound", "PlaySound", "")
 }
 
+function setSpawnNearby(){
+	EntFire("spawn_nearby_worldtext", "SetColor", selected_color)
+	EntFire("spawn_walking_worldtext", "SetColor", unselected_color)
+	EntFire("start_sound", "PlaySound", "")
+	EntFire("targetTemplate", "RunScriptCode", "setSpawnNearby()")
+}
+
+function setSpawnWalking(){
+	EntFire("spawn_walking_worldtext", "SetColor", selected_color)
+	EntFire("spawn_nearby_worldtext", "SetColor", unselected_color)
+	EntFire("start_sound", "PlaySound", "")
+	EntFire("targetTemplate", "RunScriptCode", "setSpawnWalking()")
+}
+
 function togglePrecision(){
 	if(hasPrecision){
 		local command = "removecond 96"
 		EntFire("point_clientcommand", "command", command, -1, activator)
-		EntFire("precision_worldtext", "AddOutput", "message Precision: OFF")
+		EntFire("precision_worldtext", "SetColor", unselected_color)
 		hasPrecision = false
 		EntFire("stop_sound", "PlaySound", "")
 	}
@@ -140,7 +154,7 @@ function togglePrecision(){
 		enableCheats()
 		local command = "addcond 96"
 		EntFire("point_clientcommand", "command", command, -1, activator)
-		EntFire("precision_worldtext", "AddOutput", "message Precision: ON")
+		EntFire("precision_worldtext", "SetColor", selected_color)
 		hasPrecision = true
 		EntFire("start_sound", "PlaySound", "")
 	}
@@ -148,15 +162,15 @@ function togglePrecision(){
 
 function toggleRefillOnKill(){
 	if(hasRefillOnKill){
-		EntFire("refillOnKill_worldtext", "AddOutput", "message Refill On Kill: OFF")
 		hasRefillOnKill = false
 		EntFire("stop_sound", "PlaySound", "")
+		EntFire("refillOnKill_worldtext", "SetColor", unselected_color)
 	}
 	else{
 		enableCheats()
-		EntFire("refillOnKill_worldtext", "AddOutput", "message Refill On Kill: ON")
 		hasRefillOnKill = true
 		EntFire("start_sound", "PlaySound", "")
+		EntFire("refillOnKill_worldtext", "SetColor", selected_color)
 	}
 }
 
