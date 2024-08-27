@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10042"
-	"mapversion" "257"
+	"mapversion" "261"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "257"
+	"mapversion" "261"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -5533,7 +5533,7 @@ entity
 {
 	"id" "3982"
 	"classname" "logic_timer"
-	"RefireTime" "0.25"
+	"RefireTime" "0.37"
 	"spawnflags" "0"
 	"StartDisabled" "1"
 	"targetname" "target_timer"

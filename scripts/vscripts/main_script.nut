@@ -48,29 +48,23 @@ function getHit(index)
 {
 	local targetName = ""
 	local hitCount = 0
-	local timeExtension = 0.0
 	if(index == 0) {
 		targetName = "zero_ring_hit_count_worldtext"
 		hitCount = zero_hit_count = zero_hit_count + 1
-		timeExtension = 0.18
 	}
 	else if(index == 1) {
 		targetName = "first_ring_hit_count_worldtext"
 		hitCount = first_hit_count = first_hit_count + 1
-		timeExtension = 0.16
 	}
 	else if(index == 2) {
 		targetName = "second_ring_hit_count_worldtext"
 		hitCount = second_hit_count = second_hit_count + 1
-		timeExtension = 0.14
 	}
 	else if(index == 3) {
 		targetName = "third_ring_hit_count_worldtext"
 		hitCount = third_hit_count = third_hit_count + 1
-		timeExtension = 0.12
 	}
 	EntFire(targetName, "AddOutput", "message " + hitCount)
-	EntFire("target_timer", "AddToTimer", "" + timeExtension)
 	
 	total_hit_count = total_hit_count + 1
 	EntFire("total_hit_count_worldtext", "AddOutput", "message " + total_hit_count)

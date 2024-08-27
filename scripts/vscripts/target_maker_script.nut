@@ -88,6 +88,7 @@ uMax <- 0.0
 UP <- 0
 DOWN <- 1
 walkDirection <- UP
+walkIncrement <- 0.0
 
 SPAWN_NEARBY <- 0
 SPAWN_WALKING <- 1
@@ -98,14 +99,15 @@ EPSILON <- 0.001 //for rounding errors
 
 VERT_MIN <- deg2Rad(-50)
 VERT_MAX <- deg2Rad(85)
-WALK_INCREMENT <- (VERT_MAX - VERT_MIN)/20
 function setFov(sourceFOV){
 	rho <- getRhoFromSourceFOV(sourceFOV)
 	uOffset <- getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
 	vertOffset <- getVertOffsetFromSourceFOV(sourceFOV)
-	//vertMin
-	//vertMax
-	//walkIncrement
+	//roughly 3 increments per vertOffset,
+	//then ceil such that there are a whole number of walk increments per VERT_MAX - VERT_MIN
+	walkIncrement = (VERT_MAX - VERT_MIN) / (3*ceil((VERT_MAX - VERT_MIN) / vertOffset))
+	//printl("vertOffset: " + rad2Deg(vertOffset))
+	//printl("walkIncrement: " + rad2Deg(walkIncrement))
 	uMin <- -uOffset
 	uMax <- uOffset
 }
@@ -118,16 +120,20 @@ function setSpawnNearby(){
 }
 
 function walkSpawns(){
-	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - EPSILON)
+	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - EPSILON){
+		nextVertOrigin = VERT_MAX
 		walkDirection = DOWN
-	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + EPSILON)
+	}
+	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + EPSILON){
+		nextVertOrigin = VERT_MIN
 		walkDirection = UP
+	}
 	
 	if(walkDirection == UP){
-		nextVertOrigin = nextVertOrigin + WALK_INCREMENT
+		nextVertOrigin = nextVertOrigin + walkIncrement
 	}
 	if(walkDirection == DOWN){
-		nextVertOrigin = nextVertOrigin - WALK_INCREMENT
+		nextVertOrigin = nextVertOrigin - walkIncrement
 	}
 }
 
@@ -181,7 +187,7 @@ function makeTarget()
 			phi,
 			theta,
 			0)
-	// printl("maker.makeTarget() - nextVertOrigin: " + nextVertOrigin + "; nextUOrigin: " + nextUOrigin)
+	//printl("maker.makeTarget() - nextVertOrigin: " + nextVertOrigin + "; nextUOrigin: " + nextUOrigin)
 	//printl("maker.makeTarget() - lastCreatedU: " + lastCreatedU + "; lastCreatedVert: " + lastCreatedVert)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 	
