@@ -1,3 +1,18 @@
+m_targetPieces <- []
+function register()
+{
+	m_targetPieces.append(caller)
+}
+
+function destroyTarget()
+{
+	foreach(handle in m_targetPieces)
+	{
+		handle.Destroy()
+	}
+	self.Destroy()
+}
+
 function getHit(index)
 {
     printl("get hit one")
@@ -9,4 +24,7 @@ function getHit(index)
 	EntFire("maker_logic_script","RunScriptCode", "destroyTarget(" + self + ")")
     
     printl("get hit three")
+    
+    //Destroy self
+    destroyTarget()
 }

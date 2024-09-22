@@ -1,4 +1,4 @@
-MAX_TARGET_COUNT <- 2
+MAX_TARGET_COUNT <- 10
 targetCount <- 0
 zero_hit_count <- 0
 first_hit_count <- 0

@@ -200,57 +200,48 @@ function makeTargetAtLocation(horz, vert)
 }*/
 
 //------------------------------------------------------------------------------------------------------------------------
-
+//Can't pass object handles through EntFire's third argument so as a hack I'm passing it as the caller.
 targetTable <-{}
 
 /*
     Saves a target to the targetTable
     The pieceArray is an array of handles for the objects that belong to the target, excluding the logic_script_handle
 */
-function addTarget(logic_script_handle, pieceArray)
+function addTarget()
 {
-    printl("addTarget called on handle " + logic_script_handle)
-    targetTable[logic_script_handle] <- {
+    printl("addTarget called on handle " + activator)
+    targetTable[activator] <- {
         uRatio=lastCreatedU
         vertAngle=lastCreatedVert
-        pieceArray=pieceArray
     }
 }
 
 /*
     Removes a target from the target table
 */
-function destroyTarget(logic_script_handle)
+function destroyTarget()
 {
-    printl("destroyTarget called on handle " + handle)
-    //deallocate objects
-    foreach(handle in targetTable[logic_script_handle][pieceArray]){
-		handle.Destroy()
-    }
-    targetTable[logic_script_handle][pieceArray].clear()
-    logic_script_handle.Destroy()
-    
+    printl("destroyTarget called on handle " + caller)
     
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
 	if(spawnMode == SPAWN_NEARBY){
-		nextUOrigin = uRatio
-		nextVertOrigin = vertAngle
+		nextUOrigin = targetTable[caller]["uRatio"]
+		nextVertOrigin = targetTable[caller]["vertAngle"]
 		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 	}
     
     //Clean out table entry
-    delete targetTable[logic_script_handle][uRatio]
-    delete targetTable[logic_script_handle][vertAngle]
-    delete targetTable[logic_script_handle][pieceArray]
+    delete targetTable[caller]["uRatio"]
+    delete targetTable[caller]["vertAngle"]
     
     //delete from table
-    delete targetTable[logic_script_handle]
+    delete targetTable[caller]
 }
 
 function destroyAllTargets()
 {
     foreach(logic_script_handle, targetRecord in targetTable){
-        destroyTarget(logic_script_handle)
+        EntFireByHandle(self, "RunScriptCode", "destroyTarget()", 0, activator, logic_script_handle)
     }
 }
 
