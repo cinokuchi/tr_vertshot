@@ -137,19 +137,6 @@ function walkSpawns(){
 	}
 }
 
-/*
-	Callback which allows destroyed targets to inform the target_maker where the last target
-		destruction occurred.
-	Only does anything when the spawn mode is "SPAWN_NEARBY", otherwise we don't care.
-*/
-function setLastTargetLocation(uRatio, vertAngle){
-	if(spawnMode == SPAWN_NEARBY){
-		nextUOrigin = uRatio
-		nextVertOrigin = vertAngle
-		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
-	}
-}
-
 function resetTargets(){
 	nextUOrigin = 0.0
 	nextVertOrigin = 0.0
@@ -198,6 +185,7 @@ function makeTarget()
 /*
 //Make target at a specific horz and vert
 //for debug purposes
+//Takes horz and vert in degrees
 function makeTargetAtLocation(horz, vert)
 {
 	local position = vertHorzToCartesian(rho, horz, vert)
@@ -213,26 +201,57 @@ function makeTargetAtLocation(horz, vert)
 
 //------------------------------------------------------------------------------------------------------------------------
 
-function PreSpawnInstance( entityClass, entityName )
+targetTable <-{}
+
+/*
+    Saves a target to the targetTable
+    The pieceArray is an array of handles for the objects that belong to the target, excluding the logic_script_handle
+*/
+function addTarget(logic_script_handle, pieceArray)
 {
-	return null
+    printl("addTarget called on handle " + logic_script_handle)
+    targetTable[logic_script_handle] <- {
+        uRatio=lastCreatedU
+        vertAngle=lastCreatedVert
+        pieceArray=pieceArray
+    }
 }
 
-function PostSpawn( entities )
+/*
+    Removes a target from the target table
+*/
+function destroyTarget(logic_script_handle)
 {
-	//registers the just-spawned targetPieces to the target_logic_script
-	//so that they may be deleted on hit.
-	local logic_script_handle = entities["target_logic_script"]
-	EntFireByHandle(logic_script_handle,
-		"RunScriptCode",
-		"saveLocation(" + lastCreatedU + "," + lastCreatedVert + ")",
-		0,
-		activator,
-		self
-	)
-	foreach( targetname, handle in entities )
-	{
-		if(targetname != "target_logic_script")
-			EntFireByHandle(logic_script_handle, "RunScriptCode", "register()", 0, activator, handle)
+    printl("destroyTarget called on handle " + handle)
+    //deallocate objects
+    foreach(handle in targetTable[logic_script_handle][pieceArray]){
+		handle.Destroy()
+    }
+    targetTable[logic_script_handle][pieceArray].clear()
+    logic_script_handle.Destroy()
+    
+    
+    //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
+	if(spawnMode == SPAWN_NEARBY){
+		nextUOrigin = uRatio
+		nextVertOrigin = vertAngle
+		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 	}
+    
+    //Clean out table entry
+    delete targetTable[logic_script_handle][uRatio]
+    delete targetTable[logic_script_handle][vertAngle]
+    delete targetTable[logic_script_handle][pieceArray]
+    
+    //delete from table
+    delete targetTable[logic_script_handle]
 }
+
+function destroyAllTargets()
+{
+    foreach(logic_script_handle, targetRecord in targetTable){
+        destroyTarget(logic_script_handle)
+    }
+}
+
+//------------------------------------------------------------------------------------------------------------------------

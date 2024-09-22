@@ -1,4 +1,4 @@
-MAX_TARGET_COUNT <- 10
+MAX_TARGET_COUNT <- 2
 targetCount <- 0
 zero_hit_count <- 0
 first_hit_count <- 0
@@ -41,7 +41,7 @@ function spawnTarget()
 		return
 	}
 	targetCount = targetCount + 1
-	EntFire("targetTemplate", "RunScriptCode", "makeTarget()")
+	EntFire("maker_logic_script", "RunScriptCode", "makeTarget()")
 }
 
 function getHit(index)
@@ -101,10 +101,10 @@ function stopSession()
 {
 	targetCount = 0
 	EntFire("target_timer", "Disable", "")
-	EntFire("target_logic_script*", "RunScriptCode", "destroyTarget()")
+	EntFire("maker_logic_script", "RunScriptCode", "destroyAllTargets()")
 	EntFire("stop_sound", "PlaySound", "")
 	EntFire("button_worldtext", "AddOutput", "message PLAY")
-	EntFire("targetTemplate", "RunScriptCode", "resetTargets()")
+	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
 }
 
 function toggleSession()
@@ -126,14 +126,14 @@ function setSpawnNearby(){
 	EntFire("spawn_nearby_worldtext", "SetColor", selected_color)
 	EntFire("spawn_walking_worldtext", "SetColor", unselected_color)
 	EntFire("start_sound", "PlaySound", "")
-	EntFire("targetTemplate", "RunScriptCode", "setSpawnNearby()")
+	EntFire("maker_logic_script", "RunScriptCode", "setSpawnNearby()")
 }
 
 function setSpawnWalking(){
 	EntFire("spawn_walking_worldtext", "SetColor", selected_color)
 	EntFire("spawn_nearby_worldtext", "SetColor", unselected_color)
 	EntFire("start_sound", "PlaySound", "")
-	EntFire("targetTemplate", "RunScriptCode", "setSpawnWalking()")
+	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWalking()")
 }
 
 function togglePrecision(){
@@ -216,7 +216,7 @@ function initZoomBinds()
 	}
 	
 	//Initializes target bounds based off of hipfire fov
-	EntFire("targetTemplate", "RunScriptCode", "setFov(" + default_fov + ")")
+	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
 }
 
 function debug(){
@@ -248,7 +248,7 @@ function zoomBind(index){
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	
 	//Scale target distance and spawn offsets based off of fov
-	EntFire("targetTemplate", "RunScriptCode", "setFov(" + fov + ")")
+	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + fov + ")")
 	
 	//Highlight selected zoom option
 	EntFire("zoom_" + index + "_worldtext", "SetColor", selected_color)
@@ -268,7 +268,7 @@ function defaultZoomBind(){
 		"; sensitivity " + default_sens +
 		"; unbind mouse2"
 	EntFire("point_clientcommand", "command", command, -1, activator)
-	EntFire("targetTemplate", "RunScriptCode", "setFov(" + default_fov + ")")
+	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
 	EntFire("zoom_default_worldtext", "SetColor", selected_color)
 	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
 	prevZoomIndex <- "default"

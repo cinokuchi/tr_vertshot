@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10042"
-	"mapversion" "261"
+	"mapversion" "264"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "261"
+	"mapversion" "264"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -1595,7 +1595,7 @@ entity
 	"Template04" "target_3"
 	"Template05" "target_miss"
 	"Template06" "target_logic_script"
-	"vscripts" "target_maker_script.nut"
+	"vscripts" "template_script"
 	"origin" "968 -896 140"
 	editor
 	{
@@ -10172,6 +10172,21 @@ entity
 		"visgroupshown" "1"
 		"visgroupautoshown" "1"
 		"logicalpos" "[0 9000]"
+	}
+}
+entity
+{
+	"id" "10132"
+	"classname" "logic_script"
+	"targetname" "maker_logic_script"
+	"vscripts" "maker_script"
+	"origin" "896 -960 65"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 7500]"
 	}
 }
 cameras
