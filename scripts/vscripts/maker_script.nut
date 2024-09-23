@@ -205,12 +205,11 @@ targetTable <-{}
 
 /*
     Saves a target to the targetTable
-    The pieceArray is an array of handles for the objects that belong to the target, excluding the logic_script_handle
 */
-function addTarget()
+function addTarget(logic_script_name)
 {
-    printl("addTarget called on handle " + activator)
-    targetTable[activator] <- {
+    printl("addTarget called on name " + logic_script_name)
+    targetTable[logic_script_name] <- {
         uRatio=lastCreatedU
         vertAngle=lastCreatedVert
     }
@@ -219,29 +218,29 @@ function addTarget()
 /*
     Removes a target from the target table
 */
-function destroyTarget()
+function removeTarget(logic_script_name)
 {
-    printl("destroyTarget called on handle " + caller)
+    printl("removeTarget called on name " + logic_script_name)
     
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
 	if(spawnMode == SPAWN_NEARBY){
-		nextUOrigin = targetTable[caller]["uRatio"]
-		nextVertOrigin = targetTable[caller]["vertAngle"]
+		nextUOrigin = targetTable[logic_script_name]["uRatio"]
+		nextVertOrigin = targetTable[logic_script_name]["vertAngle"]
 		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 	}
     
     //Clean out table entry
-    delete targetTable[caller]["uRatio"]
-    delete targetTable[caller]["vertAngle"]
+    delete targetTable[logic_script_name]["uRatio"]
+    delete targetTable[logic_script_name]["vertAngle"]
     
     //delete from table
-    delete targetTable[caller]
+    delete targetTable[logic_script_name]
 }
 
-function destroyAllTargets()
+function removeAllTargets()
 {
-    foreach(logic_script_handle, targetRecord in targetTable){
-        EntFireByHandle(self, "RunScriptCode", "destroyTarget()", 0, activator, logic_script_handle)
+    foreach(logic_script_name, targetRecord in targetTable){
+        removeTarget(logic_script_name)
     }
 }
 
