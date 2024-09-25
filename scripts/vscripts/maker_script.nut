@@ -206,10 +206,10 @@ targetTable <-{}
 /*
     Saves a target to the targetTable
 */
-function addTarget(logic_script_name)
+function addTarget(logic_script_handle)
 {
-    printl("addTarget called on name " + logic_script_name)
-    targetTable[logic_script_name] <- {
+    printl("addTarget called on handle " + logic_script_handle)
+    targetTable[logic_script_handle] <- {
         uRatio=lastCreatedU
         vertAngle=lastCreatedVert
     }
@@ -218,29 +218,31 @@ function addTarget(logic_script_name)
 /*
     Removes a target from the target table
 */
-function removeTarget(logic_script_name)
+function removeTarget(logic_script_handle)
 {
-    printl("removeTarget called on name " + logic_script_name)
+    printl("removeTarget called on handle " + logic_script_handle)
     
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
 	if(spawnMode == SPAWN_NEARBY){
-		nextUOrigin = targetTable[logic_script_name]["uRatio"]
-		nextVertOrigin = targetTable[logic_script_name]["vertAngle"]
+		nextUOrigin = targetTable[logic_script_handle]["uRatio"]
+		nextVertOrigin = targetTable[logic_script_handle]["vertAngle"]
 		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 	}
     
+    printl("here")
     //Clean out table entry
-    delete targetTable[logic_script_name]["uRatio"]
-    delete targetTable[logic_script_name]["vertAngle"]
+    delete targetTable[logic_script_handle]["uRatio"]
+    printl("there")
+    delete targetTable[logic_script_handle]["vertAngle"]
     
     //delete from table
-    delete targetTable[logic_script_name]
+    delete targetTable[logic_script_handle]
 }
 
 function removeAllTargets()
 {
-    foreach(logic_script_name, targetRecord in targetTable){
-        removeTarget(logic_script_name)
+    foreach(logic_script_handle, targetRecord in targetTable){
+        removeTarget(logic_script_handle)
     }
 }
 

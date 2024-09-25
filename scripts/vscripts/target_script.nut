@@ -1,14 +1,14 @@
 m_targetPieces <- []
-m_ownName <- ""
+m_ownHandle <- ""
 
 function registerPieces()
 {
 	m_targetPieces.append(activator)
 }
 
-function registerOwnName(name)
+function registerOwnName(handle)
 {
-    m_ownName = name
+    m_ownHandle = handle
 }
 
 function destroyTarget()
@@ -28,7 +28,7 @@ function getHit(index)
     
     printl("get hit two")
     //Inform maker script so it can destroy the target and deallocate the data
-	EntFire("maker_logic_script","RunScriptCode", "removeTarget(" + m_ownName + ")")
+	EntFire("maker_logic_script","RunScriptCode", "removeTarget(\"" + m_ownHandle + "\")")
     
     //Destroy self
     destroyTarget()

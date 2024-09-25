@@ -11,7 +11,6 @@ function PostSpawn( entities )
 	//registers the just-spawned targetPieces to the target_maker_script
 	//so that they may be deleted on hit.
 	local logic_script_handle = entities["target_logic_script"]
-    local logic_script_name = ""
 	foreach( targetname, handle in entities )
 	{
 		if(targetname != "target_logic_script")
@@ -22,9 +21,8 @@ function PostSpawn( entities )
         else
         {
             printl("targetname " + targetname + " DOES equal target_logic_script")
-            logic_script_name = targetname
         }
 	}
     
-    EntFire("maker_logic_script", "RunScriptCode", "addTarget(" + logic_script_name + ")")
+    EntFire("maker_logic_script", "RunScriptCode", "addTarget(\"" + logic_script_handle + "\")")
 }
