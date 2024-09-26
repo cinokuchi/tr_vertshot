@@ -223,6 +223,11 @@ function removeTarget(logic_script_handle)
 {
     //printl("removeTarget called on handle " + logic_script_handle)
     
+    if(!(logic_script_handle in targetTable)){
+        //TODO: see if I can trigger the race condition again and if its here consistently then I might be gucci with just a return statement here.
+        printl("There's about to be a race condition")
+    }
+    
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
 	if(spawnMode == SPAWN_NEARBY){
 		nextUOrigin = targetTable[logic_script_handle]["uRatio"]
