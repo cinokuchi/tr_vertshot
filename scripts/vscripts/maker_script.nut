@@ -141,6 +141,7 @@ function resetTargets(){
 	nextUOrigin = 0.0
 	nextVertOrigin = 0.0
 	walkDirection = UP
+    removeAllTargets()
 }
 
 //Provides a random u ratio in the legal bounds, in radians.
@@ -208,7 +209,7 @@ targetTable <-{}
 */
 function addTarget(logic_script_handle)
 {
-    printl("addTarget called on handle " + logic_script_handle)
+    //printl("addTarget called on handle " + logic_script_handle)
     targetTable[logic_script_handle] <- {
         uRatio=lastCreatedU
         vertAngle=lastCreatedVert
@@ -220,7 +221,7 @@ function addTarget(logic_script_handle)
 */
 function removeTarget(logic_script_handle)
 {
-    printl("removeTarget called on handle " + logic_script_handle)
+    //printl("removeTarget called on handle " + logic_script_handle)
     
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
 	if(spawnMode == SPAWN_NEARBY){
@@ -229,14 +230,17 @@ function removeTarget(logic_script_handle)
 		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
 	}
     
-    printl("here")
     //Clean out table entry
     delete targetTable[logic_script_handle]["uRatio"]
-    printl("there")
     delete targetTable[logic_script_handle]["vertAngle"]
     
     //delete from table
     delete targetTable[logic_script_handle]
+    
+    /*printl("remaining targets:")
+    foreach(logic_script_handle, targetRecord in targetTable){
+        printl("\t" + logic_script_handle)
+    }*/
 }
 
 function removeAllTargets()
@@ -244,6 +248,8 @@ function removeAllTargets()
     foreach(logic_script_handle, targetRecord in targetTable){
         removeTarget(logic_script_handle)
     }
+    //Broadcasts to all targets that they must destroy theirselves
+    EntFire("target_logic_script*", "RunScriptCode", "destroyTarget()")
 }
 
 //------------------------------------------------------------------------------------------------------------------------

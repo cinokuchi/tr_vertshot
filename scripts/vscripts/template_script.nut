@@ -6,7 +6,7 @@ function PreSpawnInstance( entityClass, entityName )
 
 function PostSpawn( entities )
 {
-    printl("PostSpawn called")
+    //printl("PostSpawn called")
     
 	//registers the just-spawned targetPieces to the target_maker_script
 	//so that they may be deleted on hit.
@@ -15,14 +15,10 @@ function PostSpawn( entities )
 	{
 		if(targetname != "target_logic_script")
         {
-            printl("targetname " + targetname + " does NOT equal target_logic_script")
-			EntFireByHandle(logic_script_handle, "RunScriptCode", "registerPieces()", 0, handle, self)
-        }
-        else
-        {
-            printl("targetname " + targetname + " DOES equal target_logic_script")
+			EntFireByHandle(logic_script_handle, "RunScriptCode", "registerPiece()", 0, handle, self)
         }
 	}
     
+    //Note, this casts the handle to a string
     EntFire("maker_logic_script", "RunScriptCode", "addTarget(\"" + logic_script_handle + "\")")
 }

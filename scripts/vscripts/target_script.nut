@@ -1,20 +1,17 @@
 m_targetPieces <- []
-m_ownHandle <- ""
 
-function registerPieces()
+function registerPiece()
 {
+    //printl("appended handle " + activator)
 	m_targetPieces.append(activator)
-}
-
-function registerOwnName(handle)
-{
-    m_ownHandle = handle
 }
 
 function destroyTarget()
 {
+    //printl("destroyTarget called on handle " + self)
 	foreach(handle in m_targetPieces)
 	{
+        //printl("destroying handle " + handle)
 		handle.Destroy()
 	}
 	self.Destroy()
@@ -22,14 +19,11 @@ function destroyTarget()
 
 function getHit(index)
 {
-    printl("get hit one")
     //Inform main script so it can increment score and decrement number of live targets
-	EntFire("main_logic_script", "RunScriptCode", "getHit(" + index + ")", -1, activator)
+	EntFire("main_logic_script", "RunScriptCode", "getHit(" + index + ")", 0, activator)
     
-    printl("get hit two")
     //Inform maker script so it can destroy the target and deallocate the data
-	EntFire("maker_logic_script","RunScriptCode", "removeTarget(\"" + m_ownHandle + "\")")
+	EntFire("maker_logic_script","RunScriptCode", "removeTarget(\"" + self + "\")")
     
-    //Destroy self
     destroyTarget()
 }

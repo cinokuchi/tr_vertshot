@@ -1,4 +1,4 @@
-MAX_TARGET_COUNT <- 2
+MAX_TARGET_COUNT <- 10
 targetCount <- 0
 zero_hit_count <- 0
 first_hit_count <- 0
@@ -101,7 +101,6 @@ function stopSession()
 {
 	targetCount = 0
 	EntFire("target_timer", "Disable", "")
-	EntFire("maker_logic_script", "RunScriptCode", "removeAllTargets()")
 	EntFire("stop_sound", "PlaySound", "")
 	EntFire("button_worldtext", "AddOutput", "message PLAY")
 	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
