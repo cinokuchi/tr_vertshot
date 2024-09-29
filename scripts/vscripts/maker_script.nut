@@ -63,11 +63,13 @@ HALF_OF_PI <- deg2Rad(90)
 	Given an FOV, returns a target distance to keep
 		apparent size roughly the same.
 	32 and HALF_OF_PI are arbitrary - I decided
-		640 hammer units of distance when source FOV is 90 deg are good numbers.
+		640 hammer units of distance when source FOV is 90 deg and target diameter is 32 to be good numbers
 		The rest comes from the visual angle formula.
+    Changed from 32 (640 units) to 12 (240 units), as target size has shrunk to 8 units
+        Had to leave the targets as fat cylinders because otherwise the inner rings clip into each other
 */
 function getRhoFromSourceFOV(sourceFOV){
-	return 32 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
+	return 12 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
 }
 //---------------------------------------------------------------------------------------------------------------------------
 m_hSpawner <- Entities.CreateByClassname("env_entity_maker")
@@ -140,7 +142,7 @@ function walkSpawns(){
 function resetTargets(){
 	nextUOrigin = 0.0
 	nextVertOrigin = 0.0
-	walkDirection = UP
+	//walkDirection = UP
     removeAllTargets()
 }
 
