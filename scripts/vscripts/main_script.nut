@@ -15,7 +15,7 @@ hasRefillOnKill <- false
 unselected_color <- "133 135 120"
 selected_color <- "255 128 0"
 prevZoomIndex <- "default"
-default_fov <- 0.0
+default_fov <- 0
 default_sens <- 0.0
 
 MAX_ZOOM_COUNT <- 6
@@ -167,21 +167,45 @@ function toggleRefillOnKill(){
 	}
 }
 
-//Read in zoom values from file
-function initZoomBinds()
-{
+//Need to call setFov or else everything breaks
+//I would do this in a try-finally but squirrel doesn't have finally
+//so here's my workaround
+function initZoomBindsHelper(){
+    /*
+        Hipfire is necessary to use zooms - if the hipfire file doesn't exist, don't do the zooms
+    */
+    
+	//load file
+	local fileContents = FileToString("tr_vertshot_hipfire.cfg")
+	if(fileContents == null) {
+		printl("[WARNING] tr_vertshot_hipfire.cfg not found. Disabling zoom buttons.")
+		return
+	}
+
 	//get current fov and sensitivity, use as default
-	default_fov = Convars.GetFloat("fov_desired")
-	default_sens = Convars.GetFloat("sensitivity")
+    local wordArray = split(fileContents, ",")
+    try {
+        default_fov = wordArray[0].tointeger()
+        default_sens = wordArray[1].tofloat()
+    }
+    catch(e){
+        printl("[ERROR] Could not parse \"" + fileContents + "\"")
+        printl("[ERROR] Must have format \"<positive integer (fov)>,<positive decimal (sens)>\"")
+        return
+    }
 	
+    /*
+        Hipfire set, now we can register the zooms
+    */
+    
 	//initialize zoom_array.
 	for(local k = 0; k < MAX_ZOOM_COUNT; k++)
 		zoom_array.append(null)
 		
 	//load file
-	local fileContents = FileToString("tr_vertshot.cfg")
+	fileContents = FileToString("tr_vertshot_zooms.cfg")
 	if(fileContents == null) {
-		printl("[WARNING] tr_vertshot.cfg not found. Disabling zoom buttons.")
+		printl("[WARNING] tr_vertshot_zooms.cfg not found. Disabling zoom buttons.")
 		return
 	}
 	
@@ -200,12 +224,12 @@ function initZoomBinds()
 		local fov
 		local sens
 		try {
-			fov = wordArray[1].tofloat()
+			fov = wordArray[1].tointeger()
 			sens = wordArray[2].tofloat()
 		}
 		catch(e){
-			printl("[ERROR] Could not read line \"" + lineArray[k] + "\"")
-			printl("[ERROR] Must have format \"<string>,<positive decimal>,<positive decimal>\"")
+			printl("[ERROR] Could not parse line \"" + lineArray[k] + "\"")
+			printl("[ERROR] Must have format \"<string>,<positive int (fov)>,<positive decimal (sens)>\"")
 			continue
 		}
 		
@@ -213,7 +237,16 @@ function initZoomBinds()
 		EntFire("zoom_" + k + "_worldtext", "AddOutput", "message " + wordArray[0])
 		zoom_array[k] = {fov=fov,sens=sens}
 	}
+}
+
+//Read in zoom values from file
+function initZoomBinds()
+{
+    //needs some default_fov to calculate target sizes
+    default_fov = 90
 	
+    initZoomBindsHelper()
+    
 	//Initializes target bounds based off of hipfire fov
 	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
 }
