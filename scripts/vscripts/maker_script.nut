@@ -236,9 +236,9 @@ function removeTarget(logic_script_handle)
 {
     //printl("removeTarget called on handle " + logic_script_handle)
     
+    //Target was shot at the same time as it was broadcast deleted.
     if(!(logic_script_handle in targetTable)){
-        //TODO: see if I can trigger the race condition again and if its here consistently then I might be gucci with just a return statement here.
-        printl("There's about to be a race condition")
+        return
     }
     
     //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
