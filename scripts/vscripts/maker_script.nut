@@ -185,7 +185,7 @@ function makeTarget()
 		walkSpawns()
 }
 
-/*
+
 //Make target at a specific horz and vert
 //for debug purposes
 //Takes horz and vert in degrees
@@ -200,7 +200,7 @@ function makeTargetAtLocation(horz, vert)
 			theta,
 			0)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
-}*/
+}
 
 //------------------------------------------------------------------------------------------------------------------------
 //Can't pass object handles through EntFire's third argument so as a hack I'm passing it as the caller.
@@ -256,7 +256,7 @@ function removeAllTargets()
         removeTarget(logic_script_handle)
     }
     //Broadcasts to all targets that they must destroy theirselves
-    EntFire("target_logic_script*", "RunScriptCode", "destroyTarget()")
+    EntFire("target_logic_script*", "KillHierarchy", "")
 }
 
 //------------------------------------------------------------------------------------------------------------------------

@@ -252,7 +252,7 @@ function initZoomBinds()
 }
 
 function debug(){
-	printl("debug fired")
+	EntFire("maker_logic_script", "RunScriptCode", "makeTargetAtLocation(0,0)")
 }
 
 //Select a zoom bind
