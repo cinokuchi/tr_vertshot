@@ -20,7 +20,7 @@ default_sens <- 0.0
 
 MAX_ZOOM_COUNT <- 6
 zoom_array <- []
-
+bind_array <- ["]", "[", "p", "o", "i", "l", "k"]
 //---------------------------------------------------------------------------------------------------------------------------
 
 function enableCheats(){
@@ -235,7 +235,7 @@ function initZoomBindsHelper(){
 		
 		//set labels, fov, and sens
 		EntFire("zoom_" + k + "_worldtext", "AddOutput", "message " + wordArray[0])
-		zoom_array[k] = {fov=fov,sens=sens}
+		zoom_array[k] = {fov=fov,sens=sens,name=wordArray[0]}
 	}
 }
 
@@ -277,7 +277,7 @@ function zoomBind(index){
 	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
 			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov +
 			"; sensitivity " + default_sens + "\"; bind mouse2 togglezoom"
-	EntFire("point_clientcommand", "command", command, -1, activator)
+    printl(command)
 	
 	//Scale target distance and spawn offsets based off of fov
 	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + fov + ")")
@@ -288,6 +288,8 @@ function zoomBind(index){
 	
 	//Remember last highlighted zoom option
 	prevZoomIndex <- index.tostring()
+    
+	EntFire("point_clientcommand", "command", command, -1, activator)
 }
 
 //De-select zoom bind
@@ -304,4 +306,25 @@ function defaultZoomBind(){
 	EntFire("zoom_default_worldtext", "SetColor", selected_color)
 	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
 	prevZoomIndex <- "default"
+}
+
+//print zoombind commands to console so the user can copy paste them.
+function printZoomBinds(){
+    printl("Copy the following console commands and either:")
+    printl("\t1. Run them directly in the console")
+    printl("\t2. Put them into autoexec.cfg to run them before every game (not recommended)")
+    printl("\t3. Create a new .cfg file, put them in there, and run that .cfg file upon entering this map")
+    printl("alias \"togglezoom\" \"zoomin\";\nalias \"zoomin\" \"alias togglezoom zoomout\";\nalias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov + "; sensitivity " + default_sens + "\";\nbind mouse2 togglezoom;")
+
+    for(local k = 0; k < MAX_ZOOM_COUNT; k++){
+        if(zoom_array[k] == null){
+            break;
+        }
+        local label = "zoom" + k
+        local fov = zoom_array[k].fov
+        local sens = zoom_array[k].sens
+        local button = bind_array[k]
+        local name = zoom_array[k].name
+        printl("alias \"" + label + "\" \"alias togglezoom zoomout; fov " + fov + "; sensitivity " + sens + "\";\nbind " + button + " \"alias zoomin " + label + "; echo \'bound " + name + "\'\";")
+    }
 }
