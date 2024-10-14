@@ -72,8 +72,12 @@ function getRhoFromSourceFOV(sourceFOV){
 	return 12 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
 }
 //---------------------------------------------------------------------------------------------------------------------------
-m_hSpawner <- Entities.CreateByClassname("env_entity_maker")
-m_hSpawner.__KeyValueFromString( "EntityTemplate", "targetTemplate")
+bigSpawner <- Entities.CreateByClassname("env_entity_maker")
+bigSpawner.__KeyValueFromString( "EntityTemplate", "big_targetTemplate")
+smallSpawner <- Entities.CreateByClassname("env_entity_maker")
+smallSpawner.__KeyValueFromString( "EntityTemplate", "small_targetTemplate")
+
+m_hSpawner <- bigSpawner
 
 //Approximate headposition standing on edge of platform.
 TARGET_ORIGIN <- Vector(536, 0, 1090)
@@ -119,6 +123,13 @@ function setSpawnWalking(){
 }
 function setSpawnNearby(){
 	spawnMode = SPAWN_NEARBY
+}
+
+function setBigTargets(){
+    m_hSpawner = bigSpawner
+}
+function setSmallTargets(){
+    m_hSpawner = smallSpawner
 }
 
 function walkSpawns(){
@@ -256,7 +267,12 @@ function removeAllTargets()
         removeTarget(logic_script_handle)
     }
     //Broadcasts to all targets that they must destroy theirselves
-    EntFire("target_logic_script*", "KillHierarchy", "")
+    if(m_hSpawner == bigSpawner){
+        EntFire("big_target_logic_script*", "KillHierarchy", "")
+    }
+    else if(m_hSpawner == smallSpawner){
+        EntFire("small_target_logic_script*", "KillHierarchy", "")
+    }
 }
 
 //------------------------------------------------------------------------------------------------------------------------

@@ -134,6 +134,19 @@ function setSpawnWalking(){
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWalking()")
 }
+function setBigTargets(){
+	EntFire("big_targets_worldtext", "SetColor", selected_color)
+	EntFire("small_targets_worldtext", "SetColor", unselected_color)
+	EntFire("start_sound", "PlaySound", "")
+	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
+}
+
+function setSmallTargets(){
+	EntFire("big_targets_worldtext", "SetColor", unselected_color)
+	EntFire("small_targets_worldtext", "SetColor", selected_color)
+	EntFire("start_sound", "PlaySound", "")
+	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
+}
 
 function togglePrecision(){
 	if(hasPrecision){
