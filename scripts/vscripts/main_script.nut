@@ -1,4 +1,4 @@
-MAX_TARGET_COUNT <- 10
+MAX_TARGET_COUNT <- 5
 targetCount <- 0
 zero_hit_count <- 0
 first_hit_count <- 0
@@ -77,6 +77,19 @@ function getHit(index)
 	}
 }
 
+function setAllBackwallWorldtexts(color){
+    EntFire("total_hit_count_worldtext", "SetColor", color)
+    EntFire("zero_ring_hit_count_worldtext", "SetColor", color)
+    EntFire("first_ring_hit_count_worldtext", "SetColor", color)
+    EntFire("second_ring_hit_count_worldtext", "SetColor", color)
+    EntFire("third_ring_hit_count_worldtext", "SetColor", color)
+    EntFire("total_label_worldtext", "SetColor", color)
+    EntFire("zero_ring_label_worldtext", "SetColor", color)
+    EntFire("first_ring_label_worldtext", "SetColor", color)
+    EntFire("second_ring_label_worldtext", "SetColor", color)
+    EntFire("third_ring_label_worldtext", "SetColor", color)
+}
+
 function startSession()
 {
 	//reset hit counts
@@ -92,6 +105,10 @@ function startSession()
 	total_hit_count = 0
 	EntFire("total_hit_count_worldtext", "AddOutput", "message 0")
 	
+    //make all the text on the back wall partially see through
+    local color = "255 255 255 125"
+    setAllBackwallWorldtexts(color)
+    
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("target_timer", "Enable", "")
 	EntFire("button_worldtext", "AddOutput", "message STOP")
@@ -104,6 +121,10 @@ function stopSession()
 	EntFire("stop_sound", "PlaySound", "")
 	EntFire("button_worldtext", "AddOutput", "message PLAY")
 	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
+    
+    //make all the text on the back wall visible
+    local color = "255 255 255 255"
+    setAllBackwallWorldtexts(color)
 }
 
 function toggleSession()
@@ -121,31 +142,80 @@ function restartGame(){
 	EntFire("start_sound", "PlaySound", "")
 }
 
-function setSpawnNearby(){
-	EntFire("spawn_nearby_worldtext", "SetColor", selected_color)
-	EntFire("spawn_walking_worldtext", "SetColor", unselected_color)
+function setSpawnHelper(selected){
+    if(selected != "spawn_walking_worldtext"){
+        EntFire("spawn_walking_worldtext", "SetColor", unselected_color)
+    }
+    if(selected != "spawn_nearby_worldtext"){
+        EntFire("spawn_nearby_worldtext", "SetColor", unselected_color)
+    }
+    if(selected != "spawn_windowed_worldtext"){
+        EntFire("spawn_windowed_worldtext", "SetColor", unselected_color)
+        EntFire("window_angle_worldtext", "SetColor", unselected_color)
+    }
+    else{
+        EntFire("window_angle_worldtext", "SetColor", selected_color)
+    }
+    if(selected != "spawn_random_worldtext"){
+        EntFire("spawn_random_worldtext", "SetColor", unselected_color)
+        EntFire("random_angle_worldtext", "SetColor", unselected_color)
+    }
+    else{
+        EntFire("random_angle_worldtext", "SetColor", selected_color)
+    }
+    EntFire(selected, "SetColor", selected_color)
 	EntFire("start_sound", "PlaySound", "")
+}
+function setSpawnNearby(){
+    setSpawnHelper("spawn_nearby_worldtext")
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnNearby()")
 }
-
 function setSpawnWalking(){
-	EntFire("spawn_walking_worldtext", "SetColor", selected_color)
-	EntFire("spawn_nearby_worldtext", "SetColor", unselected_color)
-	EntFire("start_sound", "PlaySound", "")
+    setSpawnHelper("spawn_walking_worldtext")
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWalking()")
 }
+function setSpawnWindowed(){
+    setSpawnHelper("spawn_windowed_worldtext")
+	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWindowed()")
+}
+function setSpawnRandom(){
+    setSpawnHelper("spawn_random_worldtext")
+	EntFire("maker_logic_script", "RunScriptCode", "setSpawnRandom()")
+}
+
 function setBigTargets(){
 	EntFire("big_targets_worldtext", "SetColor", selected_color)
 	EntFire("small_targets_worldtext", "SetColor", unselected_color)
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
 }
-
 function setSmallTargets(){
 	EntFire("big_targets_worldtext", "SetColor", unselected_color)
 	EntFire("small_targets_worldtext", "SetColor", selected_color)
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
+}
+
+function moveWindowSuccess(window_vert_angle){
+	EntFire("start_sound", "PlaySound", "")
+    EntFire("window_angle_worldtext", "AddOutput", "message " + window_vert_angle + " degrees")
+}
+function moveWindowSilent(window_vert_angle){
+    EntFire("window_angle_worldtext", "AddOutput", "message " + window_vert_angle + " degrees")
+}
+function moveWindowFailure(){
+	EntFire("target_sound_miss", "PlaySound", "")
+}
+
+function randomizeWindowSuccess(random_vert_angle){
+	EntFire("start_sound", "PlaySound", "")
+    EntFire("random_angle_worldtext", "AddOutput", "message " + random_vert_angle + " degrees")
+}
+function randomizeWindowSilent(random_vert_angle){
+    EntFire("random_angle_worldtext", "AddOutput", "message " + random_vert_angle + " degrees")
+}
+function randomizeWindowFailure(){
+	EntFire("target_sound_miss", "PlaySound", "")
 }
 
 function togglePrecision(){
@@ -265,7 +335,8 @@ function initZoomBinds()
 }
 
 function debug(){
-	EntFire("maker_logic_script", "RunScriptCode", "makeTargetAtLocation(0,0)")
+    EntFire("start_sound", "PlaySound", "")
+    EntFire("target_timer", "RefireTime", "0.35")
 }
 
 //Select a zoom bind
@@ -290,7 +361,7 @@ function zoomBind(index){
 	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
 			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov +
 			"; sensitivity " + default_sens + "\"; bind mouse2 togglezoom"
-    printl(command)
+    //printl(command)
 	
 	//Scale target distance and spawn offsets based off of fov
 	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + fov + ")")

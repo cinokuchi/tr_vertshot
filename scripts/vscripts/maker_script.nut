@@ -38,23 +38,24 @@ function getUFromHorz(horz){
 	return sin(horz)
 }
 
+//scale factors are arbitrary and are just to force a narrower spawn area
+VERT_SCALE_FACTOR <- 3.0/5
+HORZ_SCALE_FACTOR <- 1.0/2
 /*
 	Takes degrees and returns radians
 	This formula calculates the VFOV, then
 		divides by 2 to get offset from screen middle to screen top/bottom
 */
 function getVertOffsetFromSourceFOV(sourceFOV){
-	return atan(3 * tan(deg2Rad(sourceFOV/2)) / 4)
+	return atan((9.0/12) * tan(deg2Rad(sourceFOV/2)) * VERT_SCALE_FACTOR)
 }
-
 /*
 	Takes degrees and returns radians
 	This formula calculates the HFOV,
-		divides by 2 to get offset from screen middle to screen left/right,
-		and divides by 2 again just to force a more narrow spawn area.
+		divides by 2 to get offset from screen middle to screen left/right.
 */
 function getHorzOffsetFromSourceFOV(sourceFOV){
-	return atan(4 * tan(deg2Rad(sourceFOV/2)) / 3) / 2
+	return atan((16.0/12) * tan(deg2Rad(sourceFOV/2)) * HORZ_SCALE_FACTOR)
 }
 
 HALF_OF_PI <- deg2Rad(90)
@@ -84,9 +85,12 @@ TARGET_ORIGIN <- Vector(536, 0, 1090)
 
 nextUOrigin <- 0.0
 nextVertOrigin <- 0.0
+windowVertOrigin <- 0.0
+randomVertOrigin <- 0.0
 rho <- 0
 uOffset <- 0.0
 vertOffset <- 0.0
+randomWindowVertOffset <- 0.0
 vertMin <- 0.0
 vertMax <- 0.0
 uMin <- 0.0
@@ -98,24 +102,49 @@ walkIncrement <- 0.0
 
 SPAWN_NEARBY <- 0
 SPAWN_WALKING <- 1
-spawnMode <- SPAWN_WALKING
+SPAWN_WINDOWED <- 2
+SPAWN_RANDOM <- 3
+spawnMode <- SPAWN_RANDOM
 EPSILON <- 0.001 //for rounding errors
 
 //------------------------------------------------------------------------------------------------------------------------
-
-VERT_MIN <- deg2Rad(-50)
+//make sure WINDOW_INCREMENT divides both VERT_MIN and VERT_MAX evenly
+VERT_MIN <- deg2Rad(-51)
 VERT_MAX <- deg2Rad(85)
+WINDOW_INCREMENT <- deg2Rad(8.5)
+
 function setFov(sourceFOV){
-	rho <- getRhoFromSourceFOV(sourceFOV)
-	uOffset <- getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
-	vertOffset <- getVertOffsetFromSourceFOV(sourceFOV)
-	//roughly 3 increments per vertOffset,
-	//then ceil such that there are a whole number of walk increments per VERT_MAX - VERT_MIN
-	walkIncrement = (VERT_MAX - VERT_MIN) / (3*ceil((VERT_MAX - VERT_MIN) / vertOffset))
+	rho = getRhoFromSourceFOV(sourceFOV)
+	uOffset = getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
+	vertOffset = getVertOffsetFromSourceFOV(sourceFOV)
+    //printl(rad2Deg(vertOffset))
+	//3 increments per vertOffset
+	walkIncrement = vertOffset/3
+    
+    //Clamp windowVertOrigin:
+    if(windowVertOrigin >= VERT_MAX - vertOffset - EPSILON){
+        windowVertOrigin = ceil((VERT_MAX - vertOffset)/WINDOW_INCREMENT) * WINDOW_INCREMENT
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + rad2Deg(windowVertOrigin) + ")")
+    }
+    else if (windowVertOrigin <= VERT_MIN + vertOffset + EPSILON){
+        windowVertOrigin = floor((VERT_MIN + vertOffset)/WINDOW_INCREMENT) * WINDOW_INCREMENT
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + rad2Deg(windowVertOrigin) + ")")
+    }
+    
+    //Clamp randomVertOrigin:
+    if(randomVertOrigin >= VERT_MAX - vertOffset - EPSILON){
+        randomVertOrigin = VERT_MAX - vertOffset
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + rad2Deg(randomVertOrigin) + ")")
+    }
+    else if (randomVertOrigin <= VERT_MIN + vertOffset + EPSILON){
+        randomVertOrigin = VERT_MIN + vertOffset
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + rad2Deg(randomVertOrigin) + ")")
+    }
+    
 	//printl("vertOffset: " + rad2Deg(vertOffset))
 	//printl("walkIncrement: " + rad2Deg(walkIncrement))
-	uMin <- -uOffset
-	uMax <- uOffset
+	uMin = -uOffset
+	uMax = uOffset
 }
 
 function setSpawnWalking(){
@@ -123,6 +152,12 @@ function setSpawnWalking(){
 }
 function setSpawnNearby(){
 	spawnMode = SPAWN_NEARBY
+}
+function setSpawnWindowed(){
+	spawnMode = SPAWN_WINDOWED
+}
+function setSpawnRandom(){
+    spawnMode = SPAWN_RANDOM
 }
 
 function setBigTargets(){
@@ -133,11 +168,11 @@ function setSmallTargets(){
 }
 
 function walkSpawns(){
-	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - EPSILON){
+	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - walkIncrement - EPSILON){
 		nextVertOrigin = VERT_MAX
 		walkDirection = DOWN
 	}
-	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + EPSILON){
+	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + walkIncrement + EPSILON){
 		nextVertOrigin = VERT_MIN
 		walkDirection = UP
 	}
@@ -150,9 +185,43 @@ function walkSpawns(){
 	}
 }
 
+function raiseWindow(){
+    if(spawnMode == SPAWN_WINDOWED && windowVertOrigin < VERT_MAX - vertOffset - EPSILON){
+        windowVertOrigin = windowVertOrigin + WINDOW_INCREMENT
+        if(windowVertOrigin > -1 * EPSILON && windowVertOrigin < EPSILON){
+            windowVertOrigin = 0.0
+        }
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+    }
+    else{
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
+    }
+}
+function lowerWindow(){
+    if(spawnMode == SPAWN_WINDOWED && windowVertOrigin > VERT_MIN + vertOffset + EPSILON){
+        windowVertOrigin = windowVertOrigin - WINDOW_INCREMENT
+        if(windowVertOrigin > -1 * EPSILON && windowVertOrigin < EPSILON){
+            windowVertOrigin = 0.0
+        }
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+    }
+    else{
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
+    }
+}
+function randomizeWindow(){
+    if(spawnMode == SPAWN_RANDOM){
+        randomVertOrigin = RandomFloat(VERT_MIN + vertOffset, VERT_MAX - vertOffset)
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSuccess(" + rad2Deg(randomVertOrigin) + ")")
+    }
+    else{
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowFailure()")
+    }
+}
+
 function resetTargets(){
-	nextUOrigin = 0.0
-	nextVertOrigin = 0.0
+    nextUOrigin = 0.0
+    nextVertOrigin = 0.0
 	//walkDirection = UP
     removeAllTargets()
 }
@@ -164,7 +233,15 @@ function getRandomU(){
 
 //Provides a random vert angle in the legal bounds, in radians.
 function getRandomVert(){
-	return RandomFloat(max(VERT_MIN, nextVertOrigin - vertOffset), min(VERT_MAX, nextVertOrigin + vertOffset))
+    if(spawnMode == SPAWN_WINDOWED){
+    	return RandomFloat(max(VERT_MIN, windowVertOrigin - vertOffset), min(VERT_MAX, windowVertOrigin + vertOffset))
+    }
+    else if(spawnMode == SPAWN_RANDOM){
+    	return RandomFloat(max(VERT_MIN, randomVertOrigin - vertOffset), min(VERT_MAX, randomVertOrigin + vertOffset))
+    }
+    else{
+        return RandomFloat(max(VERT_MIN, nextVertOrigin - vertOffset), min(VERT_MAX, nextVertOrigin + vertOffset))
+    }
 }
 
 //returns a vector
@@ -202,7 +279,8 @@ function makeTarget()
 //Takes horz and vert in degrees
 function makeTargetAtLocation(horz, vert)
 {
-	local position = vertHorzToCartesian(rho, horz, vert)
+	local position = vertHorzToCartesian(rho, deg2Rad(horz), deg2Rad(vert))
+    //printl(position+TARGET_ORIGIN)
 	//acos only returns positive
 	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
 	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
@@ -211,6 +289,13 @@ function makeTargetAtLocation(horz, vert)
 			theta,
 			0)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+}
+
+function makeTargetAtWindowOrigin(){
+    //printl(windowVertOrigin)
+    makeTargetAtLocation(0, rad2Deg(randomVertOrigin))
+    printl(rad2Deg(vertOffset))
+    print(rad2Deg(getHorzFromU(uOffset)))
 }
 
 //------------------------------------------------------------------------------------------------------------------------
