@@ -361,3 +361,32 @@ function removeAllTargets()
 }
 
 //------------------------------------------------------------------------------------------------------------------------
+
+floatingPlaySpawner <- Entities.CreateByClassname("env_entity_maker")
+floatingPlaySpawner.__KeyValueFromString( "EntityTemplate", "floating_play_template")
+
+function makeFloatingPlay(){
+    local position = null
+    if(spawnMode == SPAWN_WINDOWED){
+        position = vertHorzToCartesian(rho, 0.0, windowVertOrigin)
+    }
+    else if(spawnMode == SPAWN_RANDOM){
+        position = vertHorzToCartesian(rho, 0.0, randomVertOrigin)
+    }
+    else{
+        position = vertHorzToCartesian(rho, 0.0, 0.0)
+    }
+
+	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
+	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
+	local direction = Vector(
+			phi,
+			theta,
+			0)
+	floatingPlaySpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+}
+
+//TODO figure out how to redraw the floating play button when moving the windows.
+//I can't just killhierarchy and then redraw it because the entfire goes off after the redraw.
+
+//------------------------------------------------------------------------------------------------------------------------

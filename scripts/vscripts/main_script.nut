@@ -21,6 +21,8 @@ default_sens <- 0.0
 MAX_ZOOM_COUNT <- 6
 zoom_array <- []
 bind_array <- ["]", "[", "p", "o", "i", "l", "k"]
+
+Convars.SetValue("mp_waitingforplayers_time", "0")
 //---------------------------------------------------------------------------------------------------------------------------
 
 function enableCheats(){
@@ -112,8 +114,10 @@ function startSession()
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("target_timer", "Enable", "")
 	EntFire("button_worldtext", "AddOutput", "message STOP")
+    
+    EntFire("floating_play_button*", "KillHierarchy", "")
 }
-
+  
 function stopSession()
 {
 	targetCount = 0
@@ -125,6 +129,10 @@ function stopSession()
     //make all the text on the back wall visible
     local color = "255 255 255 255"
     setAllBackwallWorldtexts(color)
+    
+    //Regenerate play button
+    EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
+    
 }
 
 function toggleSession()
@@ -336,6 +344,7 @@ function initZoomBinds()
 
 function debug(){
     EntFire("start_sound", "PlaySound", "")
+    //EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
     EntFire("target_timer", "RefireTime", "0.35")
 }
 
