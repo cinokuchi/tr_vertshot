@@ -1,3 +1,5 @@
+IncludeScript("button_module.nut")
+
 MAX_TARGET_COUNT <- 5
 targetCount <- 0
 zero_hit_count <- 0
@@ -9,12 +11,6 @@ total_hit_count <- 0
 isOn <- false
 hasEnabledCheats <- false
 
-hasPrecision <- false
-hasRefillOnKill <- false
-
-unselected_color <- "133 135 120"
-selected_color <- "255 128 0"
-prevZoomIndex <- "default"
 default_fov <- 0
 default_sens <- 0.0
 
@@ -32,8 +28,6 @@ function enableCheats(){
 	}
 }
 
-//---------------------------------------------------------------------------------------------------------------------------
-
 function spawnTarget()
 {
 	if(targetCount >= MAX_TARGET_COUNT - 1)
@@ -46,39 +40,10 @@ function spawnTarget()
 	EntFire("maker_logic_script", "RunScriptCode", "makeTarget()")
 }
 
-function getHit(index)
-{
-	local targetName = ""
-	local hitCount = 0
-	if(index == 0) {
-		targetName = "zero_ring_hit_count_worldtext"
-		hitCount = zero_hit_count = zero_hit_count + 1
-	}
-	else if(index == 1) {
-		targetName = "first_ring_hit_count_worldtext"
-		hitCount = first_hit_count = first_hit_count + 1
-	}
-	else if(index == 2) {
-		targetName = "second_ring_hit_count_worldtext"
-		hitCount = second_hit_count = second_hit_count + 1
-	}
-	else if(index == 3) {
-		targetName = "third_ring_hit_count_worldtext"
-		hitCount = third_hit_count = third_hit_count + 1
-	}
-	EntFire(targetName, "AddOutput", "message " + hitCount)
-	
-	total_hit_count = total_hit_count + 1
-	EntFire("total_hit_count_worldtext", "AddOutput", "message " + total_hit_count)
-	
-	targetCount = targetCount - 1
 
-	if(hasRefillOnKill){
-		local command = "impulse 101"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-	}
-}
-
+//---------------------------------------------------------------------------------------------------------------------------
+//    Session button
+//---------------------------------------------------------------------------------------------------------------------------
 function setAllBackwallWorldtexts(color){
     EntFire("total_hit_count_worldtext", "SetColor", color)
     EntFire("zero_ring_hit_count_worldtext", "SetColor", color)
@@ -113,7 +78,7 @@ function startSession()
     
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("target_timer", "Enable", "")
-	EntFire("button_worldtext", "AddOutput", "message STOP")
+	EntFire("session_worldtext", "AddOutput", "message STOP")
     
     EntFire("floating_play_button*", "KillHierarchy", "")
 }
@@ -123,7 +88,7 @@ function stopSession()
 	targetCount = 0
 	EntFire("target_timer", "Disable", "")
 	EntFire("stop_sound", "PlaySound", "")
-	EntFire("button_worldtext", "AddOutput", "message PLAY")
+	EntFire("session_worldtext", "AddOutput", "message PLAY")
 	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
     
     //make all the text on the back wall visible
@@ -144,66 +109,60 @@ function toggleSession()
 		stopSession()
 }
 
+//---------------------------------------------------------------------------------------------------------------------------
+//    Restart button
+//---------------------------------------------------------------------------------------------------------------------------
 function restartGame(){
 	local command = "mp_restartgame_immediate 1"
 	EntFire("point_clientcommand", "command", command, -1, activator)
 	EntFire("start_sound", "PlaySound", "")
 }
 
-function setSpawnHelper(selected){
-    if(selected != "spawn_walking_worldtext"){
-        EntFire("spawn_walking_worldtext", "SetColor", unselected_color)
+
+//---------------------------------------------------------------------------------------------------------------------------
+//    Spawn type button
+//---------------------------------------------------------------------------------------------------------------------------
+
+class SpawnSelector extends RadioButton{
+    function select(index){
+        //Two of the indices have subtitles that need to be dealt with separately
+        if(getSelected() == 0 && index != 0){
+            EntFire("random_angle_worldtext", "SetColor", unselected_color)
+        }
+        else if(getSelected() == 1 && index != 1){
+            EntFire("window_angle_worldtext", "SetColor", unselected_color)
+        }
+        
+        if(index == 0){
+            EntFire("random_angle_worldtext", "SetColor", selected_color)
+        }
+        else if(index == 1){
+            EntFire("window_angle_worldtext", "SetColor", selected_color)
+        }
+        
+        base.select(index)
     }
-    if(selected != "spawn_nearby_worldtext"){
-        EntFire("spawn_nearby_worldtext", "SetColor", unselected_color)
-    }
-    if(selected != "spawn_windowed_worldtext"){
-        EntFire("spawn_windowed_worldtext", "SetColor", unselected_color)
-        EntFire("window_angle_worldtext", "SetColor", unselected_color)
-    }
-    else{
-        EntFire("window_angle_worldtext", "SetColor", selected_color)
-    }
-    if(selected != "spawn_random_worldtext"){
-        EntFire("spawn_random_worldtext", "SetColor", unselected_color)
-        EntFire("random_angle_worldtext", "SetColor", unselected_color)
-    }
-    else{
-        EntFire("random_angle_worldtext", "SetColor", selected_color)
-    }
-    EntFire(selected, "SetColor", selected_color)
-	EntFire("start_sound", "PlaySound", "")
 }
+spawnSelector <- SpawnSelector(["spawn_random", "spawn_windowed", "spawn_walking", "spawn_nearby"])
+
 function setSpawnNearby(){
-    setSpawnHelper("spawn_nearby_worldtext")
+    spawnSelector.select(3)
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnNearby()")
 }
 function setSpawnWalking(){
-    setSpawnHelper("spawn_walking_worldtext")
+    spawnSelector.select(2)
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWalking()")
 }
 function setSpawnWindowed(){
-    setSpawnHelper("spawn_windowed_worldtext")
+    spawnSelector.select(1)
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWindowed()")
 }
 function setSpawnRandom(){
-    setSpawnHelper("spawn_random_worldtext")
+    spawnSelector.select(0)
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnRandom()")
 }
 
-function setBigTargets(){
-	EntFire("big_targets_worldtext", "SetColor", selected_color)
-	EntFire("small_targets_worldtext", "SetColor", unselected_color)
-	EntFire("start_sound", "PlaySound", "")
-	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
-}
-function setSmallTargets(){
-	EntFire("big_targets_worldtext", "SetColor", unselected_color)
-	EntFire("small_targets_worldtext", "SetColor", selected_color)
-	EntFire("start_sound", "PlaySound", "")
-	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
-}
-
+//TODO: get rid of these callbacks and do everything in the main script
 function moveWindowSuccess(window_vert_angle){
 	EntFire("start_sound", "PlaySound", "")
     EntFire("window_angle_worldtext", "AddOutput", "message " + window_vert_angle + " degrees")
@@ -226,37 +185,82 @@ function randomizeWindowFailure(){
 	EntFire("target_sound_miss", "PlaySound", "")
 }
 
+//---------------------------------------------------------------------------------------------------------------------------
+// target size
+//---------------------------------------------------------------------------------------------------------------------------
+targetSizeSelector <- RadioButton(["big_targets", "small_targets"])
+
+function setBigTargets(){
+    targetSizeSelector.select(0)
+	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
+}
+function setSmallTargets(){
+    targetSizeSelector.select(1)
+	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
+}
+
+//---------------------------------------------------------------------------------------------------------------------------
+// Precision and RefillOnKill
+//---------------------------------------------------------------------------------------------------------------------------
+class PrecisionToggle extends CheckmarkButton{
+    function select(){
+        base.select()
+		EntFire("point_clientcommand", "command", "addcond 96", -1, activator)
+    }
+    function deselect(){
+        base.deselect()
+		EntFire("point_clientcommand", "command", "removecond 96", -1, activator)
+    }
+}
+precisionToggle <- PrecisionToggle("precision")
 function togglePrecision(){
-	if(hasPrecision){
-		local command = "removecond 96"
-		EntFire("point_clientcommand", "command", command, -1, activator)
-		EntFire("precision_worldtext", "SetColor", unselected_color)
-		hasPrecision = false
-		EntFire("stop_sound", "PlaySound", "")
+    enableCheats()
+    precisionToggle.toggle()
+}
+
+refillOnKillToggle <- CheckmarkButton("refillOnKill")
+function toggleRefillOnKill(){
+    enableCheats()
+    refillOnKillToggle.toggle()
+}
+
+function getHit(index)
+{
+	local targetName = ""
+	local hitCount = 0
+	if(index == 0) {
+		targetName = "zero_ring_hit_count_worldtext"
+		hitCount = zero_hit_count = zero_hit_count + 1
 	}
-	else{
-		enableCheats()
-		local command = "addcond 96"
+	else if(index == 1) {
+		targetName = "first_ring_hit_count_worldtext"
+		hitCount = first_hit_count = first_hit_count + 1
+	}
+	else if(index == 2) {
+		targetName = "second_ring_hit_count_worldtext"
+		hitCount = second_hit_count = second_hit_count + 1
+	}
+	else if(index == 3) {
+		targetName = "third_ring_hit_count_worldtext"
+		hitCount = third_hit_count = third_hit_count + 1
+	}
+	EntFire(targetName, "AddOutput", "message " + hitCount)
+	
+	total_hit_count = total_hit_count + 1
+	EntFire("total_hit_count_worldtext", "AddOutput", "message " + total_hit_count)
+	
+	targetCount = targetCount - 1
+
+	if(refillOnKillToggle.getSelected()){
+		local command = "impulse 101"
 		EntFire("point_clientcommand", "command", command, -1, activator)
-		EntFire("precision_worldtext", "SetColor", selected_color)
-		hasPrecision = true
-		EntFire("start_sound", "PlaySound", "")
 	}
 }
 
-function toggleRefillOnKill(){
-	if(hasRefillOnKill){
-		hasRefillOnKill = false
-		EntFire("stop_sound", "PlaySound", "")
-		EntFire("refillOnKill_worldtext", "SetColor", unselected_color)
-	}
-	else{
-		enableCheats()
-		hasRefillOnKill = true
-		EntFire("start_sound", "PlaySound", "")
-		EntFire("refillOnKill_worldtext", "SetColor", selected_color)
-	}
-}
+//---------------------------------------------------------------------------------------------------------------------------
+// Zoombinds
+//---------------------------------------------------------------------------------------------------------------------------
+zoomSelector <- null
 
 //Need to call setFov or else everything breaks
 //I would do this in a try-finally but squirrel doesn't have finally
@@ -273,6 +277,11 @@ function initZoomBindsHelper(){
 		return
 	}
 
+	//initialize zoom_array.
+    //MAX_ZOOM_COUNT + 1 as we are putting the hipfire into the zoom_array as well
+	for(local k = 0; k < MAX_ZOOM_COUNT + 1; k++)
+		zoom_array.append(null)
+
 	//get current fov and sensitivity, use as default
     local wordArray = split(fileContents, ",")
     try {
@@ -284,15 +293,11 @@ function initZoomBindsHelper(){
         printl("[ERROR] Must have format \"<positive integer (fov)>,<positive decimal (sens)>\"")
         return
     }
+    zoom_array[0] = {fov=default_fov,sens=default_sens,name="Restore Default FOV and Sens"}
 	
     /*
         Hipfire set, now we can register the zooms
     */
-    
-	//initialize zoom_array.
-	for(local k = 0; k < MAX_ZOOM_COUNT; k++)
-		zoom_array.append(null)
-		
 	//load file
 	fileContents = FileToString("tr_vertshot_zooms.cfg")
 	if(fileContents == null) {
@@ -302,6 +307,7 @@ function initZoomBindsHelper(){
 	
 	//parse file
 	local lineArray = split(fileContents, "\n")
+    local labelArray = ["zoom_0"]
 	for(local k = 0; k < lineArray.len(); k++){
 	
 		//Ignore excess zoom settings
@@ -325,9 +331,15 @@ function initZoomBindsHelper(){
 		}
 		
 		//set labels, fov, and sens
-		EntFire("zoom_" + k + "_worldtext", "AddOutput", "message " + wordArray[0])
-		zoom_array[k] = {fov=fov,sens=sens,name=wordArray[0]}
+		EntFire("zoom_" + (k+1) + "_worldtext", "AddOutput", "message " + wordArray[0])
+		zoom_array[k+1] = {fov=fov,sens=sens,name=wordArray[0]}
+        labelArray.append("zoom_" + (k+1))
 	}
+    
+    //Set up button objects
+    if(zoom_array.len() > 0){
+        zoomSelector = RadioButton(labelArray)
+    }
 }
 
 //Read in zoom values from file
@@ -342,12 +354,6 @@ function initZoomBinds()
 	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
 }
 
-function debug(){
-    EntFire("start_sound", "PlaySound", "")
-    //EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
-    EntFire("target_timer", "RefireTime", "0.35")
-}
-
 //Select a zoom bind
 function zoomBind(index){
 	//if this zoom bind is unset, play invalid sound and do nothing
@@ -355,14 +361,16 @@ function zoomBind(index){
 		EntFire("target_sound_miss", "PlaySound", "")
 		return
 	}
-	
-	//otherwise, play select sound
-	EntFire("start_sound", "PlaySound", "")
-	
-	//if re-selecting already selected option, do nothing
-	if(index.tostring() == prevZoomIndex)
-		return
-		
+
+    //highlight the selected zoom
+    local prevSelected = zoomSelector.getSelected()
+    zoomSelector.select(index)
+    
+    //if we didn't switch the selection we can stop here
+    if(prevSelected == index){
+        return
+    }
+
 	enableCheats()
 	//set up aliases and bind mouse2 to zoom
 	local fov = zoom_array[index].fov
@@ -370,35 +378,10 @@ function zoomBind(index){
 	local command = "alias \"togglezoom\" \"zoomin\"; alias \"zoomin\" \"alias togglezoom zoomout; fov " +
 			fov + "; sensitivity " + sens + "\"; alias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov +
 			"; sensitivity " + default_sens + "\"; bind mouse2 togglezoom"
-    //printl(command)
+	EntFire("point_clientcommand", "command", command, -1, activator)
 	
 	//Scale target distance and spawn offsets based off of fov
 	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + fov + ")")
-	
-	//Highlight selected zoom option
-	EntFire("zoom_" + index + "_worldtext", "SetColor", selected_color)
-	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
-	
-	//Remember last highlighted zoom option
-	prevZoomIndex <- index.tostring()
-    
-	EntFire("point_clientcommand", "command", command, -1, activator)
-}
-
-//De-select zoom bind
-function defaultZoomBind(){
-	EntFire("start_sound", "PlaySound", "")
-	if(prevZoomIndex == "default")
-		return
-	enableCheats()
-	local command = "fov_desired " + default_fov +
-		"; sensitivity " + default_sens +
-		"; unbind mouse2"
-	EntFire("point_clientcommand", "command", command, -1, activator)
-	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
-	EntFire("zoom_default_worldtext", "SetColor", selected_color)
-	EntFire("zoom_" + prevZoomIndex + "_worldtext", "SetColor", unselected_color)
-	prevZoomIndex <- "default"
 }
 
 //print zoombind commands to console so the user can copy paste them.
@@ -409,7 +392,8 @@ function printZoomBinds(){
     printl("\t3. Create a new .cfg file, put them in there, and run that .cfg file upon entering this map")
     printl("alias \"togglezoom\" \"zoomin\";\nalias \"zoomin\" \"alias togglezoom zoomout\";\nalias \"zoomout\" \"alias togglezoom zoomin; fov " + default_fov + "; sensitivity " + default_sens + "\";\nbind mouse2 togglezoom;")
 
-    for(local k = 0; k < MAX_ZOOM_COUNT; k++){
+    //skip the first zoom bind because that one is just the defaults
+    for(local k = 1; k <= MAX_ZOOM_COUNT; k++){
         if(zoom_array[k] == null){
             break;
         }
@@ -420,4 +404,14 @@ function printZoomBinds(){
         local name = zoom_array[k].name
         printl("alias \"" + label + "\" \"alias togglezoom zoomout; fov " + fov + "; sensitivity " + sens + "\";\nbind " + button + " \"alias zoomin " + label + "; echo \'bound " + name + "\'\";")
     }
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------------
+// Debug
+//---------------------------------------------------------------------------------------------------------------------------
+function debug(){
+    EntFire("start_sound", "PlaySound", "")
+    //EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
+    EntFire("target_timer", "RefireTime", "0.35")
 }

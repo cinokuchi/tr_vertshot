@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10225"
-	"mapversion" "332"
+	"mapversion" "339"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "332"
+	"mapversion" "339"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -1415,7 +1415,7 @@ entity
 	"sounds" "0"
 	"spawnflags" "1536"
 	"speed" "30"
-	"targetname" "main_button"
+	"targetname" "session_button"
 	"unlocked_sentence" "0"
 	"unlocked_sound" "0"
 	"wait" "0.05"
@@ -6416,7 +6416,7 @@ entity
 	"message" "PLAY"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "button_worldtext"
+	"targetname" "session_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -6975,7 +6975,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(1)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(2)0-1"
 	}
 	solid
 	{
@@ -7071,7 +7071,7 @@ entity
 	"message" "zoom 2 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_1_worldtext"
+	"targetname" "zoom_2_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -7765,7 +7765,7 @@ entity
 	"message" "zoom 3 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_2_worldtext"
+	"targetname" "zoom_3_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -7802,7 +7802,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(2)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(3)0-1"
 	}
 	solid
 	{
@@ -7898,7 +7898,7 @@ entity
 	"message" "zoom 4 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_3_worldtext"
+	"targetname" "zoom_4_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -7935,7 +7935,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(3)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(4)0-1"
 	}
 	solid
 	{
@@ -8031,7 +8031,7 @@ entity
 	"message" "zoom 5 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_4_worldtext"
+	"targetname" "zoom_5_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -8068,7 +8068,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(4)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(5)0-1"
 	}
 	solid
 	{
@@ -8164,7 +8164,7 @@ entity
 	"message" "zoom 6 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_5_worldtext"
+	"targetname" "zoom_6_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -8201,7 +8201,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(5)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(6)0-1"
 	}
 	solid
 	{
@@ -8297,7 +8297,7 @@ entity
 	"message" "Restore Default FOV and Sens"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_default_worldtext"
+	"targetname" "zoom_0_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -8334,7 +8334,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodedefaultZoomBind()0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(0)0-1"
 	}
 	solid
 	{
@@ -8430,7 +8430,7 @@ entity
 	"message" "zoom 1 not set"
 	"orientation" "0"
 	"rainbow" "0"
-	"targetname" "zoom_0_worldtext"
+	"targetname" "zoom_1_worldtext"
 	"textsize" "10"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -8467,7 +8467,7 @@ entity
 	"wait" "0.05"
 	connections
 	{
-		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(0)0-1"
+		"OnPressed" "main_logic_scriptRunScriptCodezoomBind(1)0-1"
 	}
 	solid
 	{
