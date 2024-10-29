@@ -470,11 +470,43 @@ function printZoomBinds(){
     }
 }
 
+//---------------------------------------------------------------------------------------------------------------------------
+//    Target Spawn Delays
+//---------------------------------------------------------------------------------------------------------------------------
+targetSpawnDelaySelector <- RadioButton(["target_delay_0", "target_delay_1", "target_delay_2", "target_delay_3", "target_delay_4"])
+
+function setBigTargets(){
+    targetSizeSelector.select(0)
+	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
+}
+function setSmallTargets(){
+    targetSizeSelector.select(1)
+	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
+}
+
+function setTargetDelay(delay){
+    EntFire("target_timer", "RefireTime", delay)
+    if(delay == 0.42){
+        targetSpawnDelaySelector.select(0)
+    }
+    else if(delay == 0.39){
+        targetSpawnDelaySelector.select(1)
+    }
+    else if(delay == 0.36){
+        targetSpawnDelaySelector.select(2)
+    }
+    else if(delay == 0.33){
+        targetSpawnDelaySelector.select(3)
+    }
+    else if(delay == 0.30){
+        targetSpawnDelaySelector.select(4)
+    }
+}
 
 //---------------------------------------------------------------------------------------------------------------------------
 // Debug
 //---------------------------------------------------------------------------------------------------------------------------
 function debug(){
     EntFire("start_sound", "PlaySound", "")
-    EntFire("target_timer", "RefireTime", "0.35")
+    printl("debug fired")
 }
