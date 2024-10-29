@@ -289,7 +289,8 @@ function removeAllTargets()
 }
 
 //------------------------------------------------------------------------------------------------------------------------
-
+//  Floating Play
+//------------------------------------------------------------------------------------------------------------------------
 floatingPlaySpawner <- Entities.CreateByClassname("env_entity_maker")
 floatingPlaySpawner.__KeyValueFromString( "EntityTemplate", "floating_play_template")
 
@@ -313,6 +314,54 @@ function makeFloatingPlay(){
 			0)
 	floatingPlaySpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 }
+
+function deleteFloatingPlay(){
+    EntFire("floating_play_worldtext*", "KillHierarchy", "")
+}
+
+//------------------------------------------------------------------------------------------------------------------------
+//  Autoplay
+//------------------------------------------------------------------------------------------------------------------------
+floatingAutoplaySpawner <- Entities.CreateByClassname("env_entity_maker")
+floatingAutoplaySpawner.__KeyValueFromString( "EntityTemplate", "floating_autoplay_template")
+
+autoplayCountdown <- 0
+function startAutoplayCountdown(){
+    local position = null
+    if(spawnMode == SPAWN_WINDOWED){
+        position = vertHorzToCartesian(rho, 0.0, windowVertOrigin)
+    }
+    else if(spawnMode == SPAWN_RANDOM){
+        position = vertHorzToCartesian(rho, 0.0, randomVertOrigin)
+    }
+    else{
+        position = vertHorzToCartesian(rho, 0.0, 0.0)
+    }
+
+	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
+	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
+	local direction = Vector(
+			phi,
+			theta,
+			0)
+	floatingAutoplaySpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+    autoplayCountdown = 3
+	EntFire("autoplay_timer", "Enable", "")
+}
+
+function decrementAutoplayCountdown(){
+    autoplayCountdown = autoplayCountdown - 1
+    EntFire("floating_autoplay_worldtext2", "AddOutput", "message in " + autoplayCountdown + "...")
+    if(autoplayCountdown <= 0){
+        EntFire("main_logic_script", "RunScriptCode", "autoplayTimerTimeout()")
+    }
+}
+
+function stopAutoplayCountdown(){
+    EntFire("floating_autoplay_worldtext*", "KillHierarchy", "")
+	EntFire("autoplay_timer", "Disable", "")
+}
+
 
 //TODO figure out how to redraw the floating play button when moving the windows.
 //I can't just killhierarchy and then redraw it because the entfire goes off after the redraw.

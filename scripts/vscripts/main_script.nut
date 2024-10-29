@@ -8,9 +8,6 @@ second_hit_count <- 0
 third_hit_count <- 0
 total_hit_count <- 0
 
-isOn <- false
-hasEnabledCheats <- false
-
 default_fov <- 0
 default_sens <- 0.0
 
@@ -21,6 +18,7 @@ bind_array <- ["]", "[", "p", "o", "i", "l", "k"]
 Convars.SetValue("mp_waitingforplayers_time", "0")
 //---------------------------------------------------------------------------------------------------------------------------
 
+hasEnabledCheats <- false
 function enableCheats(){
 	if(!hasEnabledCheats){
 		EntFire("point_clientcommand", "command", "sv_cheats 1", -1, activator)
@@ -28,22 +26,39 @@ function enableCheats(){
 	}
 }
 
-function spawnTarget()
-{
-	if(targetCount >= MAX_TARGET_COUNT - 1)
-	{
-		isOn = false
-		stopSession()
-		return
-	}
-	targetCount = targetCount + 1
-	EntFire("maker_logic_script", "RunScriptCode", "makeTarget()")
-}
+//---------------------------------------------------------------------------------------------------------------------------
+//    Autoplay button
+//---------------------------------------------------------------------------------------------------------------------------
+class AutoplayToggle extends CheckmarkButton{
+    constructor(){
+        base.constructor("autoplay")
+    }
 
+    function select(){
+        base.select()
+        EntFire("autoplay_worldtext", "AddOutput", "message autoplay: on")
+    }
+    function deselect(){
+        base.deselect()
+        EntFire("autoplay_worldtext", "AddOutput", "message autoplay: off")
+    }
+}
+autoplayToggle <- AutoplayToggle()
+function toggleAutoplay(){
+    if(currState == AUTOPLAYCOUNTDOWN){
+        stateChange(HARDSTOP)
+    }
+    autoplayToggle.toggle()
+}
 
 //---------------------------------------------------------------------------------------------------------------------------
 //    Session button
 //---------------------------------------------------------------------------------------------------------------------------
+HARDSTOP <- 0
+INPROGRESS <- 1
+AUTOPLAYCOUNTDOWN <- 2
+currState <- HARDSTOP
+
 function setAllBackwallWorldtexts(color){
     EntFire("total_hit_count_worldtext", "SetColor", color)
     EntFire("zero_ring_hit_count_worldtext", "SetColor", color)
@@ -78,35 +93,84 @@ function startSession()
     
 	EntFire("start_sound", "PlaySound", "")
 	EntFire("target_timer", "Enable", "")
-	EntFire("session_worldtext", "AddOutput", "message STOP")
-    
-    EntFire("floating_play_button*", "KillHierarchy", "")
+	EntFire("play_worldtext", "AddOutput", "message STOP")
 }
   
 function stopSession()
 {
 	targetCount = 0
 	EntFire("target_timer", "Disable", "")
-	EntFire("stop_sound", "PlaySound", "")
-	EntFire("session_worldtext", "AddOutput", "message PLAY")
 	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
     
     //make all the text on the back wall visible
     local color = "255 255 255 255"
     setAllBackwallWorldtexts(color)
-    
-    //Regenerate play button
-    EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
-    
 }
 
-function toggleSession()
+function stateChange(newState){
+    if(currState == newState){
+        printl("[WARNING] should be impossible to transition from " + newState + " back to same state")
+    }
+
+    //clean up old state
+    if(currState == HARDSTOP){
+        EntFire("maker_logic_script", "RunScriptCode", "deleteFloatingPlay()")
+    }
+    else if(currState == INPROGRESS){
+        stopSession()
+    }
+    else if(currState == AUTOPLAYCOUNTDOWN){
+        EntFire("maker_logic_script", "RunScriptCode", "stopAutoplayCountdown()")
+    }
+    
+    //start new state
+    if(newState == HARDSTOP){
+        EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
+        EntFire("stop_sound", "PlaySound", "")
+        EntFire("play_worldtext", "AddOutput", "message START")
+    }
+    else if(newState == INPROGRESS){
+        startSession()
+    }
+    else if(newState == AUTOPLAYCOUNTDOWN){
+        if(currState == HARDSTOP){
+            printl("[WARNING] should be impossible to transition from hardstop to AUTOPLAYCOUNTDOWN")
+        }
+        EntFire("stop_sound", "PlaySound", "")
+        EntFire("maker_logic_script", "RunScriptCode", "startAutoplayCountdown()")
+        EntFire("play_worldtext", "AddOutput", "message STOP")
+    }
+    
+    currState = newState
+}
+
+function togglePlay(){
+    if(currState == INPROGRESS || currState == AUTOPLAYCOUNTDOWN){
+        stateChange(HARDSTOP)
+    }
+    else if(currState == HARDSTOP){
+        stateChange(INPROGRESS)
+    }
+}
+
+function autoplayTimerTimeout(){
+    stateChange(INPROGRESS)
+}
+
+function spawnTarget()
 {
-	isOn = !isOn
-	if(isOn)
-		startSession()
-	else
-		stopSession()
+	if(targetCount >= MAX_TARGET_COUNT - 1)
+	{
+        if(autoplayToggle.getSelected()){
+            stateChange(AUTOPLAYCOUNTDOWN)
+        }
+        else{
+            stateChange(HARDSTOP)
+        }
+		return
+	}
+	targetCount = targetCount + 1
+	EntFire("maker_logic_script", "RunScriptCode", "makeTarget()")
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -412,6 +476,5 @@ function printZoomBinds(){
 //---------------------------------------------------------------------------------------------------------------------------
 function debug(){
     EntFire("start_sound", "PlaySound", "")
-    //EntFire("maker_logic_script", "RunScriptCode", "makeFloatingPlay()")
     EntFire("target_timer", "RefireTime", "0.35")
 }
