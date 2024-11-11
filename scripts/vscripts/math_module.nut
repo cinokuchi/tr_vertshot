@@ -39,8 +39,8 @@ function getUFromHorz(horz){
 }
 
 //scale factors are arbitrary and are just to force a narrower spawn area
-VERT_SCALE_FACTOR <- 3.0/5
-HORZ_SCALE_FACTOR <- 1.0/2
+VERT_SCALE_FACTOR <- 2.0/5
+HORZ_SCALE_FACTOR <- 2.0/5
 /*
 	Takes degrees and returns radians
 	This formula calculates the VFOV, then
