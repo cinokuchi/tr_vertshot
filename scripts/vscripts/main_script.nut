@@ -252,7 +252,7 @@ function randomizeWindowFailure(){
 //---------------------------------------------------------------------------------------------------------------------------
 // target size
 //---------------------------------------------------------------------------------------------------------------------------
-targetSizeSelector <- RadioButton(["big_targets", "small_targets"])
+targetSizeSelector <- RadioButton(["big_targets", "small_targets", "tiny_targets"])
 
 function setBigTargets(){
     targetSizeSelector.select(0)
@@ -261,6 +261,10 @@ function setBigTargets(){
 function setSmallTargets(){
     targetSizeSelector.select(1)
 	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
+}
+function setTinyTargets(){
+    targetSizeSelector.select(2)
+	EntFire("maker_logic_script", "RunScriptCode", "setTinyTargets()")
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -474,15 +478,6 @@ function printZoomBinds(){
 //    Target Spawn Delays
 //---------------------------------------------------------------------------------------------------------------------------
 targetSpawnDelaySelector <- RadioButton(["target_delay_0", "target_delay_1", "target_delay_2", "target_delay_3", "target_delay_4"])
-
-function setBigTargets(){
-    targetSizeSelector.select(0)
-	EntFire("maker_logic_script", "RunScriptCode", "setBigTargets()")
-}
-function setSmallTargets(){
-    targetSizeSelector.select(1)
-	EntFire("maker_logic_script", "RunScriptCode", "setSmallTargets()")
-}
 
 function setTargetDelay(delay){
     EntFire("target_timer", "RefireTime", delay)

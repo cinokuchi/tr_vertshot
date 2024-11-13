@@ -5,6 +5,8 @@ bigSpawner <- Entities.CreateByClassname("env_entity_maker")
 bigSpawner.__KeyValueFromString( "EntityTemplate", "big_targetTemplate")
 smallSpawner <- Entities.CreateByClassname("env_entity_maker")
 smallSpawner.__KeyValueFromString( "EntityTemplate", "small_targetTemplate")
+tinySpawner <- Entities.CreateByClassname("env_entity_maker")
+tinySpawner.__KeyValueFromString( "EntityTemplate", "tiny_targetTemplate")
 
 m_hSpawner <- bigSpawner
 
@@ -93,6 +95,9 @@ function setBigTargets(){
 }
 function setSmallTargets(){
     m_hSpawner = smallSpawner
+}
+function setTinyTargets(){
+    m_hSpawner = tinySpawner
 }
 
 function walkSpawns(){
@@ -285,6 +290,9 @@ function removeAllTargets()
     }
     else if(m_hSpawner == smallSpawner){
         EntFire("small_target_logic_script*", "KillHierarchy", "")
+    }
+    else if(m_hSpawner == tinySpawner){
+        EntFire("tiny_target_logic_script*", "KillHierarchy", "")
     }
 }
 
