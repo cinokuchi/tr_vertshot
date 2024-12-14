@@ -58,17 +58,14 @@ function getHorzOffsetFromSourceFOV(sourceFOV){
 	return atan((16.0/12) * tan(deg2Rad(sourceFOV/2)) * HORZ_SCALE_FACTOR)
 }
 
-HALF_OF_PI <- deg2Rad(90)
+QUARTER_OF_PI <- deg2Rad(45)
 /*
 	Takes degrees and returns hammer units.
 	Given an FOV, returns a target distance to keep
 		apparent size roughly the same.
-	32 and HALF_OF_PI are arbitrary - I decided
-		640 hammer units of distance when source FOV is 90 deg and target diameter is 32 to be good numbers
-		The rest comes from the visual angle formula.
-    Changed from 32 (640 units) to 12 (240 units), as target size has shrunk to 8 units
-        Had to leave the targets as fat cylinders because otherwise the inner rings clip into each other
+	240 and QUARTER_OF_PI are arbitrary - I decided
+		240 hammer units of distance when source FOV is 90 deg (half of default fov is 45) and target diameter is 32 to be good numbers
 */
 function getRhoFromSourceFOV(sourceFOV){
-	return 12 / tan(atan(1.0/20.0) * deg2Rad(sourceFOV)/HALF_OF_PI)
+    return 240 * tan(QUARTER_OF_PI)/(tan(deg2Rad(sourceFOV)/2))
 }
