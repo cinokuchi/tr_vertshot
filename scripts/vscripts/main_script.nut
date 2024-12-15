@@ -504,4 +504,5 @@ function setTargetDelay(delay){
 function debug(){
     EntFire("start_sound", "PlaySound", "")
     printl("debug fired")
+	EntFire("maker_logic_script", "RunScriptCode", "makeTargetAtLocation(0, -76.5)")
 }

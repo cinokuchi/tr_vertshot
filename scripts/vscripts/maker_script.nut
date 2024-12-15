@@ -39,7 +39,7 @@ EPSILON <- 0.001 //for rounding errors
 
 //------------------------------------------------------------------------------------------------------------------------
 //make sure WINDOW_INCREMENT divides both VERT_MIN and VERT_MAX evenly
-VERT_MIN <- deg2Rad(-51)
+VERT_MIN <- deg2Rad(-76.5)
 VERT_MAX <- deg2Rad(85)
 WINDOW_INCREMENT <- deg2Rad(8.5)
 
