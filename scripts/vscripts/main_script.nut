@@ -88,7 +88,7 @@ function startSession()
 	EntFire("total_hit_count_worldtext", "AddOutput", "message 0")
 	
     //make all the text on the back wall partially see through
-    local color = "255 255 255 125"
+    local color = "255 255 255 80"
     setAllBackwallWorldtexts(color)
     
 	EntFire("start_sound", "PlaySound", "")
