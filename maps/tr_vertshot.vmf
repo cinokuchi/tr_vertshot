@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10225"
-	"mapversion" "405"
+	"mapversion" "414"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "405"
+	"mapversion" "414"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -8997,7 +8997,6 @@ entity
 		"OnMapSpawn" "tonemapSetBloomScale00-1"
 		"OnMapSpawn" "tonemapSetAutoExposureMax10-1"
 		"OnMapSpawn" "tonemapSetAutoExposureMin10-1"
-		"OnMapSpawn" "maker_logic_scriptRunScriptCodemakeFloatingPlay()0.01-1"
 	}
 	"origin" "896 -896 65"
 	editor
@@ -16782,11 +16781,11 @@ entity
 entity
 {
 	"id" "13746"
-	"classname" "point_template"
-	"spawnflags" "2"
-	"targetname" "floating_play_template"
-	"Template02" "floating_play_worldtext"
-	"Template03" "floating_play_worldtext_2"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"spawnflags" "0"
+	"targetname" "floating_play"
+	"vscripts" "floating_text_script.nut"
 	"origin" "848 -808 144"
 	editor
 	{
@@ -16805,8 +16804,9 @@ entity
 	"font" "0"
 	"message" "to begin"
 	"orientation" "0"
+	"parentname" "floating_play"
 	"rainbow" "0"
-	"targetname" "floating_play_worldtext"
+	"targetname" "floating_play_worldtext_2"
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -16828,9 +16828,9 @@ entity
 	"font" "0"
 	"message" "Press Play"
 	"orientation" "0"
-	"parentname" "floating_play_worldtext"
+	"parentname" "floating_play"
 	"rainbow" "0"
-	"targetname" "floating_play_worldtext_2"
+	"targetname" "floating_play_worldtext_1"
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -16985,9 +16985,9 @@ entity
 	"font" "0"
 	"message" "in 3..."
 	"orientation" "0"
-	"parentname" "floating_autoplay_worldtext"
+	"parentname" "floating_autoplay"
 	"rainbow" "0"
-	"targetname" "floating_autoplay_worldtext2"
+	"targetname" "floating_autoplay_worldtext_2"
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -17009,8 +17009,9 @@ entity
 	"font" "0"
 	"message" "Autoplaying"
 	"orientation" "0"
+	"parentname" "floating_autoplay"
 	"rainbow" "0"
-	"targetname" "floating_autoplay_worldtext"
+	"targetname" "floating_autoplay_worldtext_1"
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
@@ -17026,11 +17027,11 @@ entity
 entity
 {
 	"id" "14927"
-	"classname" "point_template"
-	"spawnflags" "2"
-	"targetname" "floating_autoplay_template"
-	"Template02" "floating_autoplay_worldtext"
-	"Template03" "floating_autoplay_worldtext2"
+	"classname" "info_target"
+	"angles" "0 0 0"
+	"spawnflags" "0"
+	"targetname" "floating_autoplay"
+	"vscripts" "floating_text_script.nut"
 	"origin" "784 -808 144"
 	editor
 	{

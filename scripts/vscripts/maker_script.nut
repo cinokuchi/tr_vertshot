@@ -299,8 +299,8 @@ function removeAllTargets()
 //------------------------------------------------------------------------------------------------------------------------
 //  Floating Play
 //------------------------------------------------------------------------------------------------------------------------
-floatingPlaySpawner <- Entities.CreateByClassname("env_entity_maker")
-floatingPlaySpawner.__KeyValueFromString( "EntityTemplate", "floating_play_template")
+//floatingPlaySpawner <- Entities.CreateByClassname("env_entity_maker")
+//floatingPlaySpawner.__KeyValueFromString( "EntityTemplate", "floating_play_template")
 
 function makeFloatingPlay(){
     local position = null
@@ -320,18 +320,21 @@ function makeFloatingPlay(){
 			phi,
 			theta,
 			0)
-	floatingPlaySpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+    position = position + TARGET_ORIGIN
+    local moveArg = position.x + "," + position.z + "," + phi + "," + theta
+    EntFire("floating_play", "RunScriptCode", "move(" + moveArg + ")")
+    EntFire("floating_play", "RunScriptCode", "show()")
 }
 
 function deleteFloatingPlay(){
-    EntFire("floating_play_worldtext*", "KillHierarchy", "")
+    EntFire("floating_play", "RunScriptCode", "hide()")
 }
 
 //------------------------------------------------------------------------------------------------------------------------
 //  Autoplay
 //------------------------------------------------------------------------------------------------------------------------
-floatingAutoplaySpawner <- Entities.CreateByClassname("env_entity_maker")
-floatingAutoplaySpawner.__KeyValueFromString( "EntityTemplate", "floating_autoplay_template")
+//floatingAutoplaySpawner <- Entities.CreateByClassname("env_entity_maker")
+//floatingAutoplaySpawner.__KeyValueFromString( "EntityTemplate", "floating_autoplay_template")
 
 autoplayCountdown <- 0
 function startAutoplayCountdown(){
@@ -352,21 +355,26 @@ function startAutoplayCountdown(){
 			phi,
 			theta,
 			0)
-	floatingAutoplaySpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
+    EntFire("floating_autoplay_worldtext2", "AddOutput", "message in 3...")
     autoplayCountdown = 3
-	EntFire("autoplay_timer", "Enable", "")
+    EntFire("autoplay_timer", "Enable", "")
+    position = position + TARGET_ORIGIN
+    local moveArg = position.x + "," + position.z + "," + phi + "," + theta
+    EntFire("floating_autoplay", "RunScriptCode", "move(" + moveArg + ")")
+    EntFire("floating_autoplay_worldtext_2", "AddOutput", "message in 3...")
+    EntFire("floating_autoplay", "RunScriptCode", "show()")
 }
 
 function decrementAutoplayCountdown(){
     autoplayCountdown = autoplayCountdown - 1
-    EntFire("floating_autoplay_worldtext2", "AddOutput", "message in " + autoplayCountdown + "...")
+    EntFire("floating_autoplay_worldtext_2", "AddOutput", "message in " + autoplayCountdown + "...")
     if(autoplayCountdown <= 0){
         EntFire("main_logic_script", "RunScriptCode", "autoplayTimerTimeout()")
     }
 }
 
 function stopAutoplayCountdown(){
-    EntFire("floating_autoplay_worldtext*", "KillHierarchy", "")
+    EntFire("floating_autoplay", "RunScriptCode", "hide()")
 	EntFire("autoplay_timer", "Disable", "")
 }
 
