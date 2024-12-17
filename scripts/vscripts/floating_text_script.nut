@@ -17,7 +17,7 @@ function move(x,z,phi,theta)
 function hide()
 {
     for (local child = self.FirstMoveChild(); child != null; child = child.NextMovePeer())
-        EntFireByHandle(child, "SetColor", "255 128 0 128", 0, null, null)
+        EntFireByHandle(child, "SetColor", "255 128 0 0", 0, null, null)
 }
 function show()
 {

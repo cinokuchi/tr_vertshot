@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10225"
-	"mapversion" "414"
+	"mapversion" "424"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -14,13 +14,13 @@ viewsettings
 	"bSnapToGrid" "1"
 	"bShowGrid" "1"
 	"bShowLogicalGrid" "0"
-	"nGridSpacing" "8"
+	"nGridSpacing" "2"
 	"bShow3DGrid" "1"
 }
 world
 {
 	"id" "1"
-	"mapversion" "414"
+	"mapversion" "424"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -16782,11 +16782,11 @@ entity
 {
 	"id" "13746"
 	"classname" "info_target"
-	"angles" "0 0 0"
+	"angles" "-90 0 0"
 	"spawnflags" "0"
 	"targetname" "floating_play"
 	"vscripts" "floating_text_script.nut"
-	"origin" "848 -808 144"
+	"origin" "296 0 1090"
 	editor
 	{
 		"color" "220 30 220"
@@ -16799,7 +16799,7 @@ entity
 {
 	"id" "13809"
 	"classname" "point_worldtext"
-	"angles" "-90 180 0"
+	"angles" "0 180 0"
 	"color" "255 128 0 255"
 	"font" "0"
 	"message" "to begin"
@@ -16810,7 +16810,7 @@ entity
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
-	"origin" "840 -860 124"
+	"origin" "316 -52 1082"
 	editor
 	{
 		"color" "220 30 220"
@@ -16823,7 +16823,7 @@ entity
 {
 	"id" "14626"
 	"classname" "point_worldtext"
-	"angles" "-90 180 0"
+	"angles" "0 180 0"
 	"color" "255 128 0 255"
 	"font" "0"
 	"message" "Press Play"
@@ -16834,7 +16834,7 @@ entity
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
-	"origin" "856 -868 124"
+	"origin" "316 -60 1098"
 	editor
 	{
 		"color" "220 30 220"
@@ -16980,8 +16980,8 @@ entity
 {
 	"id" "14923"
 	"classname" "point_worldtext"
-	"angles" "-90 180 0"
-	"color" "255 128 0 255"
+	"angles" "0 180 0"
+	"color" "255 128 0 0"
 	"font" "0"
 	"message" "in 3..."
 	"orientation" "0"
@@ -16991,7 +16991,7 @@ entity
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
-	"origin" "776 -840 124"
+	"origin" "794 -840 126"
 	editor
 	{
 		"color" "220 30 220"
@@ -17004,8 +17004,8 @@ entity
 {
 	"id" "14925"
 	"classname" "point_worldtext"
-	"angles" "-90 180 0"
-	"color" "255 128 0 255"
+	"angles" "0 180 0"
+	"color" "255 128 0 0"
 	"font" "0"
 	"message" "Autoplaying"
 	"orientation" "0"
@@ -17015,7 +17015,7 @@ entity
 	"textsize" "20"
 	"textspacingX" "0"
 	"textspacingY" "0"
-	"origin" "792 -868 124"
+	"origin" "794 -868 142"
 	editor
 	{
 		"color" "220 30 220"
@@ -17028,11 +17028,11 @@ entity
 {
 	"id" "14927"
 	"classname" "info_target"
-	"angles" "0 0 0"
+	"angles" "-90 0 0"
 	"spawnflags" "0"
 	"targetname" "floating_autoplay"
 	"vscripts" "floating_text_script.nut"
-	"origin" "784 -808 144"
+	"origin" "774 -808 134"
 	editor
 	{
 		"color" "220 30 220"

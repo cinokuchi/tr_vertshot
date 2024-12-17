@@ -43,7 +43,7 @@ VERT_MIN <- deg2Rad(-76.5)
 VERT_MAX <- deg2Rad(85)
 WINDOW_INCREMENT <- deg2Rad(8.5)
 
-function setFov(sourceFOV){
+function setFov(sourceFOV, initialize=false){
 	rho = getRhoFromSourceFOV(sourceFOV)
 	uOffset = getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
 	vertOffset = getVertOffsetFromSourceFOV(sourceFOV)
@@ -75,19 +75,35 @@ function setFov(sourceFOV){
 	//printl("walkIncrement: " + rad2Deg(walkIncrement))
 	uMin = -uOffset
 	uMax = uOffset
+    
+    //move floating text
+    //This function is called once on map spawn, before the floating text signs load in.
+    //If called at that time, it appears to move the parent but not the children? something like that.
+    if(!initialize){
+        moveFloatingTextHelper("floating_play")
+        moveFloatingTextHelper("floating_autoplay")
+    }
 }
 
 function setSpawnWalking(){
 	spawnMode = SPAWN_WALKING
+    moveFloatingTextHelper("floating_play")
+    moveFloatingTextHelper("floating_autoplay")
 }
 function setSpawnNearby(){
 	spawnMode = SPAWN_NEARBY
+    moveFloatingTextHelper("floating_play")
+    moveFloatingTextHelper("floating_autoplay")
 }
 function setSpawnWindowed(){
 	spawnMode = SPAWN_WINDOWED
+    moveFloatingTextHelper("floating_play")
+    moveFloatingTextHelper("floating_autoplay")
 }
 function setSpawnRandom(){
     spawnMode = SPAWN_RANDOM
+    moveFloatingTextHelper("floating_play")
+    moveFloatingTextHelper("floating_autoplay")
 }
 
 function setBigTargets(){
@@ -125,6 +141,10 @@ function raiseWindow(){
             windowVertOrigin = 0.0
         }
         EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+        
+        //move floating text
+        moveFloatingTextHelper("floating_play")
+        moveFloatingTextHelper("floating_autoplay")
     }
     else{
         EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
@@ -137,6 +157,10 @@ function lowerWindow(){
             windowVertOrigin = 0.0
         }
         EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+        
+        //move floating text
+        moveFloatingTextHelper("floating_play")
+        moveFloatingTextHelper("floating_autoplay")
     }
     else{
         EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
@@ -146,6 +170,10 @@ function randomizeWindow(){
     if(spawnMode == SPAWN_RANDOM){
         randomVertOrigin = RandomFloat(VERT_MIN + vertOffset, VERT_MAX - vertOffset)
         EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSuccess(" + rad2Deg(randomVertOrigin) + ")")
+        
+        //move floating text
+        moveFloatingTextHelper("floating_play")
+        moveFloatingTextHelper("floating_autoplay")
     }
     else{
         EntFire("main_logic_script", "RunScriptCode", "randomizeWindowFailure()")
@@ -302,7 +330,7 @@ function removeAllTargets()
 //floatingPlaySpawner <- Entities.CreateByClassname("env_entity_maker")
 //floatingPlaySpawner.__KeyValueFromString( "EntityTemplate", "floating_play_template")
 
-function makeFloatingPlay(){
+function moveFloatingTextHelper(entityName){
     local position = null
     if(spawnMode == SPAWN_WINDOWED){
         position = vertHorzToCartesian(rho, 0.0, windowVertOrigin)
@@ -322,7 +350,11 @@ function makeFloatingPlay(){
 			0)
     position = position + TARGET_ORIGIN
     local moveArg = position.x + "," + position.z + "," + phi + "," + theta
-    EntFire("floating_play", "RunScriptCode", "move(" + moveArg + ")")
+    EntFire(entityName, "RunScriptCode", "move(" + moveArg + ")")
+}
+
+function makeFloatingPlay(){
+    moveFloatingTextHelper("floating_play")
     EntFire("floating_play", "RunScriptCode", "show()")
 }
 
@@ -337,32 +369,13 @@ function deleteFloatingPlay(){
 //floatingAutoplaySpawner.__KeyValueFromString( "EntityTemplate", "floating_autoplay_template")
 
 autoplayCountdown <- 0
-function startAutoplayCountdown(){
-    local position = null
-    if(spawnMode == SPAWN_WINDOWED){
-        position = vertHorzToCartesian(rho, 0.0, windowVertOrigin)
-    }
-    else if(spawnMode == SPAWN_RANDOM){
-        position = vertHorzToCartesian(rho, 0.0, randomVertOrigin)
-    }
-    else{
-        position = vertHorzToCartesian(rho, 0.0, 0.0)
-    }
 
-	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
-	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
-	local direction = Vector(
-			phi,
-			theta,
-			0)
-    EntFire("floating_autoplay_worldtext2", "AddOutput", "message in 3...")
+function startAutoplayCountdown(){
+    moveFloatingTextHelper("floating_autoplay")
     autoplayCountdown = 3
-    EntFire("autoplay_timer", "Enable", "")
-    position = position + TARGET_ORIGIN
-    local moveArg = position.x + "," + position.z + "," + phi + "," + theta
-    EntFire("floating_autoplay", "RunScriptCode", "move(" + moveArg + ")")
     EntFire("floating_autoplay_worldtext_2", "AddOutput", "message in 3...")
     EntFire("floating_autoplay", "RunScriptCode", "show()")
+    EntFire("autoplay_timer", "Enable", "")
 }
 
 function decrementAutoplayCountdown(){
