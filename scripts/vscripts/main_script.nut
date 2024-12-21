@@ -419,7 +419,7 @@ function initZoomBinds()
     initZoomBindsHelper()
     
 	//Initializes target bounds based off of hipfire fov
-	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ",true)")
+	EntFire("maker_logic_script", "RunScriptCode", "setFov(" + default_fov + ")")
 }
 
 //Select a zoom bind

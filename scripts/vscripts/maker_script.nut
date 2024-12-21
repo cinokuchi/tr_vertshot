@@ -43,7 +43,7 @@ VERT_MIN <- deg2Rad(-76.5)
 VERT_MAX <- deg2Rad(85)
 WINDOW_INCREMENT <- deg2Rad(8.5)
 
-function setFov(sourceFOV, initialize=false){
+function setFov(sourceFOV){
 	rho = getRhoFromSourceFOV(sourceFOV)
 	uOffset = getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
 	vertOffset = getVertOffsetFromSourceFOV(sourceFOV)
@@ -76,13 +76,8 @@ function setFov(sourceFOV, initialize=false){
 	uMin = -uOffset
 	uMax = uOffset
     
-    //move floating text
-    //This function is called once on map spawn, before the floating text signs load in.
-    //If called at that time, it appears to move the parent but not the children? something like that.
-    if(!initialize){
-        moveFloatingTextHelper("floating_play")
-        moveFloatingTextHelper("floating_autoplay")
-    }
+    moveFloatingTextHelper("floating_play")
+    moveFloatingTextHelper("floating_autoplay")
 }
 
 function setSpawnWalking(){
