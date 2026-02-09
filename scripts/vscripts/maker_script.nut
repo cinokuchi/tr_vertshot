@@ -13,8 +13,6 @@ m_hSpawner <- bigSpawner
 //Approximate headposition standing on edge of platform.
 TARGET_ORIGIN <- Vector(536, 0, 1090)
 
-nextUOrigin <- 0.0
-nextVertOrigin <- 0.0
 windowVertOrigin <- 0.0
 randomVertOrigin <- 0.0
 rho <- 0
@@ -25,18 +23,42 @@ vertMin <- 0.0
 vertMax <- 0.0
 uMin <- 0.0
 uMax <- 0.0
-UP <- 0
-DOWN <- 1
-walkDirection <- UP
-walkIncrement <- 0.0
 
-SPAWN_NEARBY <- 0
-SPAWN_WALKING <- 1
 SPAWN_WINDOWED <- 2
 SPAWN_RANDOM <- 3
 spawnMode <- SPAWN_RANDOM
 EPSILON <- 0.001 //for rounding errors
 
+
+
+//------------------------------------------------------------------------------------------------------------------------
+//  Helpers
+//------------------------------------------------------------------------------------------------------------------------
+
+//Provides a random u ratio in the legal bounds, in radians.
+function getRandomU(){
+	return RandomFloat(max(uMin, -uOffset), min(uMax, uOffset))
+}
+
+//Provides a random vert angle in the legal bounds, in radians.
+function getRandomVert(){
+    if(spawnMode == SPAWN_WINDOWED){
+    	return RandomFloat(max(VERT_MIN, windowVertOrigin - vertOffset), min(VERT_MAX, windowVertOrigin + vertOffset))
+    }
+    else if(spawnMode == SPAWN_RANDOM){
+    	return RandomFloat(max(VERT_MIN, randomVertOrigin - vertOffset), min(VERT_MAX, randomVertOrigin + vertOffset))
+    }
+}
+
+//returns a vector
+function vertHorzToCartesian(rho, horz, vert)
+{
+	local rho_cosHorz = rho * cos(horz)
+	return Vector(-rho_cosHorz*cos(vert), rho*sin(horz), rho_cosHorz*sin(vert))
+}
+
+//------------------------------------------------------------------------------------------------------------------------
+//  Settings
 //------------------------------------------------------------------------------------------------------------------------
 //make sure WINDOW_INCREMENT divides both VERT_MIN and VERT_MAX evenly
 VERT_MIN <- deg2Rad(-76.5)
@@ -49,7 +71,6 @@ function setFov(sourceFOV){
 	vertOffset = getVertOffsetFromSourceFOV(sourceFOV)
     //printl(rad2Deg(vertOffset))
 	//3 increments per vertOffset
-	walkIncrement = vertOffset/3
     
     //Clamp windowVertOrigin:
     if(windowVertOrigin >= VERT_MAX - vertOffset - EPSILON){
@@ -80,16 +101,6 @@ function setFov(sourceFOV){
     moveFloatingTextHelper("floating_autoplay")
 }
 
-function setSpawnWalking(){
-	spawnMode = SPAWN_WALKING
-    moveFloatingTextHelper("floating_play")
-    moveFloatingTextHelper("floating_autoplay")
-}
-function setSpawnNearby(){
-	spawnMode = SPAWN_NEARBY
-    moveFloatingTextHelper("floating_play")
-    moveFloatingTextHelper("floating_autoplay")
-}
 function setSpawnWindowed(){
 	spawnMode = SPAWN_WINDOWED
     moveFloatingTextHelper("floating_play")
@@ -109,24 +120,6 @@ function setSmallTargets(){
 }
 function setTinyTargets(){
     m_hSpawner = tinySpawner
-}
-
-function walkSpawns(){
-	if(walkDirection == UP && nextVertOrigin >= VERT_MAX - walkIncrement - EPSILON){
-		nextVertOrigin = VERT_MAX
-		walkDirection = DOWN
-	}
-	if(walkDirection == DOWN && nextVertOrigin <= VERT_MIN + walkIncrement + EPSILON){
-		nextVertOrigin = VERT_MIN
-		walkDirection = UP
-	}
-	
-	if(walkDirection == UP){
-		nextVertOrigin = nextVertOrigin + walkIncrement
-	}
-	if(walkDirection == DOWN){
-		nextVertOrigin = nextVertOrigin - walkIncrement
-	}
 }
 
 function raiseWindow(){
@@ -175,58 +168,28 @@ function randomizeWindow(){
     }
 }
 
-function resetTargets(){
-    nextUOrigin = 0.0
-    nextVertOrigin = 0.0
-	//walkDirection = UP
-    removeAllTargets()
+//------------------------------------------------------------------------------------------------------------------------
+//  Make target
+//------------------------------------------------------------------------------------------------------------------------
+function makeTarget() {
+    myVector <- Vector(rad2Deg(getRandomVert()), 0, 0)
+	m_hSpawner.SpawnEntityAtLocation(TARGET_ORIGIN, myVector)
 }
 
-//Provides a random u ratio in the legal bounds, in radians.
-function getRandomU(){
-	return RandomFloat(max(uMin, nextUOrigin - uOffset), min(uMax, nextUOrigin + uOffset))
+function setYaw() {
+    yaw <- getHorzFromU(getRandomU())
+    myQAngle <- QAngle(0, rad2Deg(yaw), 0)
+    caller.SetLocalAngles(myQAngle)
 }
 
-//Provides a random vert angle in the legal bounds, in radians.
-function getRandomVert(){
-    if(spawnMode == SPAWN_WINDOWED){
-    	return RandomFloat(max(VERT_MIN, windowVertOrigin - vertOffset), min(VERT_MAX, windowVertOrigin + vertOffset))
-    }
-    else if(spawnMode == SPAWN_RANDOM){
-    	return RandomFloat(max(VERT_MIN, randomVertOrigin - vertOffset), min(VERT_MAX, randomVertOrigin + vertOffset))
-    }
-    else{
-        return RandomFloat(max(VERT_MIN, nextVertOrigin - vertOffset), min(VERT_MAX, nextVertOrigin + vertOffset))
-    }
+function setRoll() {
+    myQAngle <- QAngle(0.0, 0.0, RandomFloat(0, 360))
+    caller.SetLocalAngles(myQAngle)
 }
 
-//returns a vector
-function vertHorzToCartesian(rho, horz, vert)
-{
-	local rho_cosHorz = rho * cos(horz)
-	return Vector(-rho_cosHorz*cos(vert), rho*sin(horz), rho_cosHorz*sin(vert))
-}
-
-lastCreatedU <- 0
-lastCreatedVert <- 0
-function makeTarget()
-{
-	lastCreatedU = getRandomU()
-	lastCreatedVert = getRandomVert()
-	local position = vertHorzToCartesian(rho, getHorzFromU(lastCreatedU), lastCreatedVert)
-	//acos only returns positive
-	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
-	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
-	local direction = Vector(
-			phi,
-			theta,
-			0)
-	//printl("maker.makeTarget() - nextVertOrigin: " + nextVertOrigin + "; nextUOrigin: " + nextUOrigin)
-	//printl("maker.makeTarget() - lastCreatedU: " + lastCreatedU + "; lastCreatedVert: " + lastCreatedVert)
-	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
-	
-	if(spawnMode == SPAWN_WALKING)
-		walkSpawns()
+function setDistance() {
+    myVector <- Vector(-rho, 0, 0)
+    caller.SetLocalOrigin(myVector)
 }
 
 
@@ -247,6 +210,13 @@ function makeTargetAtLocation(horz, vert)
 	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
 }
 
+function makeTargetAtLocation2(horz, vert)
+{
+	local direction = Vector(0, 0, 0)
+	m_hSpawner.SpawnEntityAtLocation(TARGET_ORIGIN, direction)
+}
+
+
 function makeTargetAtWindowOrigin(){
     //printl(windowVertOrigin)
     makeTargetAtLocation(0, rad2Deg(randomVertOrigin))
@@ -255,61 +225,14 @@ function makeTargetAtWindowOrigin(){
 }
 
 //------------------------------------------------------------------------------------------------------------------------
-//Can't pass object handles through EntFire's third argument so as a hack I'm passing it as the caller.
-targetTable <-{}
-
-/*
-    Saves a target to the targetTable
-*/
-function addTarget(logic_script_handle)
-{
-    //printl("addTarget called on handle " + logic_script_handle)
-    targetTable[logic_script_handle] <- {
-        uRatio=lastCreatedU
-        vertAngle=lastCreatedVert
-    }
-}
-
-/*
-    Removes a target from the target table
-*/
-function removeTarget(logic_script_handle)
-{
-    //printl("removeTarget called on handle " + logic_script_handle)
-    
-    //Target was shot at the same time as it was broadcast deleted.
-    if(!(logic_script_handle in targetTable)){
-        return
-    }
-    
-    //if SPAWN_NEARBY, then the next spawn location will be based off of the just-destroyed spawn location
-	if(spawnMode == SPAWN_NEARBY){
-		nextUOrigin = targetTable[logic_script_handle]["uRatio"]
-		nextVertOrigin = targetTable[logic_script_handle]["vertAngle"]
-		//printl("nextUOrigin: " + nextUOrigin + "; nextVertOrigin: " + nextVertOrigin)
-	}
-    
-    //Clean out table entry
-    delete targetTable[logic_script_handle]["uRatio"]
-    delete targetTable[logic_script_handle]["vertAngle"]
-    
-    //delete from table
-    delete targetTable[logic_script_handle]
-    
-    /*printl("remaining targets:")
-    foreach(logic_script_handle, targetRecord in targetTable){
-        printl("\t" + logic_script_handle)
-    }*/
-}
+//  Destroy all targets
+//---------------------------------------------------------------------------------------------------------------------------
 
 function removeAllTargets()
 {
-    foreach(logic_script_handle, targetRecord in targetTable){
-        removeTarget(logic_script_handle)
-    }
     //Broadcasts to all targets that they must destroy theirselves
     if(m_hSpawner == bigSpawner){
-        EntFire("big_target_logic_script*", "KillHierarchy", "")
+        EntFire("big_target_pitch*", "KillHierarchy", "")
     }
     else if(m_hSpawner == smallSpawner){
         EntFire("small_target_logic_script*", "KillHierarchy", "")
@@ -332,9 +255,6 @@ function moveFloatingTextHelper(entityName){
     }
     else if(spawnMode == SPAWN_RANDOM){
         position = vertHorzToCartesian(rho, 0.0, randomVertOrigin)
-    }
-    else{
-        position = vertHorzToCartesian(rho, 0.0, 0.0)
     }
 
 	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))

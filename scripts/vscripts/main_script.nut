@@ -100,7 +100,7 @@ function stopSession()
 {
 	targetCount = 0
 	EntFire("target_timer", "Disable", "")
-	EntFire("maker_logic_script", "RunScriptCode", "resetTargets()")
+	EntFire("maker_logic_script", "RunScriptCode", "removeAllTargets()")
     
     //make all the text on the back wall visible
     local color = "255 255 255 255"
@@ -504,5 +504,5 @@ function setTargetDelay(delay){
 function debug(){
     EntFire("start_sound", "PlaySound", "")
     printl("debug fired")
-	EntFire("maker_logic_script", "RunScriptCode", "makeTargetAtLocation(0, -76.5)")
+	EntFire("maker_logic_script", "RunScriptCode", "makeTargetAtLocation2(0, 0)")
 }
