@@ -205,10 +205,10 @@ function removeAllTargets()
         EntFire("big_target_pitch*", "KillHierarchy", "")
     }
     else if(m_hSpawner == smallSpawner){
-        EntFire("small_target_logic_script*", "KillHierarchy", "")
+        EntFire("small_target_pitch*", "KillHierarchy", "")
     }
     else if(m_hSpawner == tinySpawner){
-        EntFire("tiny_target_logic_script*", "KillHierarchy", "")
+        EntFire("tiny_target_pitch*", "KillHierarchy", "")
     }
 }
 
