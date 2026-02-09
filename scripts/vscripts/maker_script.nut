@@ -20,8 +20,6 @@ uOffset <- 0.0                          //unitless ratio
 vertOffset <- 0.0                       //degrees
 vertMin <- 0.0                          //degrees
 vertMax <- 0.0                          //degrees
-uMin <- 0.0                             //unitless ratio
-uMax <- 0.0                             //unitless ratio
 
 SPAWN_WINDOWED <- 2
 SPAWN_RANDOM <- 3
@@ -38,7 +36,7 @@ EPSILON <- 0.001 //for rounding errors
 //unitless ratio between side lengths, but sort of in radians because it needs to have
 //  an inverse trig function applied to it which will yield radians
 function getRandomU(){
-	return RandomFloat(max(uMin, -uOffset), min(uMax, uOffset))
+	return RandomFloat(-uOffset, uOffset)
 }
 
 //Provides a random vert angle in the legal bounds, in degrees.
@@ -95,9 +93,6 @@ function setFov(sourceFOV){
         randomVertOrigin = VERT_MIN + vertOffset
         EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + randomVertOrigin + ")")
     }
-    
-	uMin = -uOffset
-	uMax = uOffset
     
     moveFloatingTextHelper("floating_play")
     moveFloatingTextHelper("floating_autoplay")
@@ -210,6 +205,50 @@ function removeAllTargets()
     else if(m_hSpawner == tinySpawner){
         EntFire("tiny_target_pitch*", "KillHierarchy", "")
     }
+}
+
+//------------------------------------------------------------------------------------------------------------------------
+//  Reflector walls
+//------------------------------------------------------------------------------------------------------------------------
+
+/*
+    Expects angles in radians
+*/
+function moveReflectorHelper(side, horz, vert){
+    local position = vertHorzToCartesian(rho, horz, vert)
+
+	local pitch = rad2Deg(asin(position.z/rho))
+	local yaw = -rad2Deg(asin(position.y/rho))
+    
+    position = position + TARGET_ORIGIN
+    
+    //pitch and position
+    local moveArg = position.x + "," + position.y + "," + position.z + "," + pitch
+    EntFire("reflector_pitch_" + side, "RunScriptCode", "move(" + moveArg + ")")
+    
+    //yaw
+    if(yaw != 0){
+        EntFire("reflector_yaw_" + side, "RunScriptCode", "yaw(" + yaw + ")")
+    }
+    //printl(position + ";" + pitch + ";" + yaw)
+}
+
+function moveReflectors(){
+    local vertOrigin = null
+    if(spawnMode == SPAWN_WINDOWED){
+        vertOrigin = windowVertOrigin
+    }
+    else if(spawnMode == SPAWN_RANDOM){
+        vertOrigin = randomVertOrigin
+    }
+    local horzOffset = getHorzFromU(uOffset)
+    local vertTop = deg2Rad(vertOrigin + vertOffset)
+    local vertBot = deg2Rad(vertOrigin - vertOffset)
+    local vertCenter = deg2Rad(vertOrigin)
+    moveReflectorHelper("top", 0, vertTop)
+    moveReflectorHelper("bottom", 0, vertBot)
+    moveReflectorHelper("left", -horzOffset, vertCenter)
+    moveReflectorHelper("right", horzOffset, vertCenter)
 }
 
 //------------------------------------------------------------------------------------------------------------------------

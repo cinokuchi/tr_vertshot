@@ -3,13 +3,15 @@
 function move(x,z,phi,theta)
 {
 	local position = Vector(
-			x,
-			0,
-			z)
+        x,
+        0,
+        z
+    )
     local direction = QAngle(
-			phi,
-			theta,
-			0)
+        phi,
+        theta,
+        0
+    )
     self.SetAbsOrigin(position)
     self.SetAbsAngles(direction)
 }
