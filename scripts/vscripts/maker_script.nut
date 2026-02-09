@@ -13,16 +13,15 @@ m_hSpawner <- bigSpawner
 //Approximate headposition standing on edge of platform.
 TARGET_ORIGIN <- Vector(536, 0, 1090)
 
-windowVertOrigin <- 0.0
-randomVertOrigin <- 0.0
-rho <- 0
-uOffset <- 0.0
-vertOffset <- 0.0
-randomWindowVertOffset <- 0.0
-vertMin <- 0.0
-vertMax <- 0.0
-uMin <- 0.0
-uMax <- 0.0
+windowVertOrigin <- 0.0                 //degrees
+randomVertOrigin <- 0.0                 //degrees
+rho <- 0                                //hammer units (length)
+uOffset <- 0.0                          //unitless ratio
+vertOffset <- 0.0                       //degrees
+vertMin <- 0.0                          //degrees
+vertMax <- 0.0                          //degrees
+uMin <- 0.0                             //unitless ratio
+uMax <- 0.0                             //unitless ratio
 
 SPAWN_WINDOWED <- 2
 SPAWN_RANDOM <- 3
@@ -35,12 +34,14 @@ EPSILON <- 0.001 //for rounding errors
 //  Helpers
 //------------------------------------------------------------------------------------------------------------------------
 
-//Provides a random u ratio in the legal bounds, in radians.
+//Provides a random u ratio in the legal bounds.
+//unitless ratio between side lengths, but sort of in radians because it needs to have
+//  an inverse trig function applied to it which will yield radians
 function getRandomU(){
 	return RandomFloat(max(uMin, -uOffset), min(uMax, uOffset))
 }
 
-//Provides a random vert angle in the legal bounds, in radians.
+//Provides a random vert angle in the legal bounds, in degrees.
 function getRandomVert(){
     if(spawnMode == SPAWN_WINDOWED){
     	return RandomFloat(max(VERT_MIN, windowVertOrigin - vertOffset), min(VERT_MAX, windowVertOrigin + vertOffset))
@@ -50,7 +51,10 @@ function getRandomVert(){
     }
 }
 
-//returns a vector
+/*
+    returns a vector
+    expects horz and vert to be in radians
+*/
 function vertHorzToCartesian(rho, horz, vert)
 {
 	local rho_cosHorz = rho * cos(horz)
@@ -61,39 +65,37 @@ function vertHorzToCartesian(rho, horz, vert)
 //  Settings
 //------------------------------------------------------------------------------------------------------------------------
 //make sure WINDOW_INCREMENT divides both VERT_MIN and VERT_MAX evenly
-VERT_MIN <- deg2Rad(-76.5)
-VERT_MAX <- deg2Rad(85)
-WINDOW_INCREMENT <- deg2Rad(8.5)
+VERT_MIN <- -76.5
+VERT_MAX <- 85
+WINDOW_INCREMENT <- 8.5
 
 function setFov(sourceFOV){
 	rho = getRhoFromSourceFOV(sourceFOV)
 	uOffset = getUFromHorz(getHorzOffsetFromSourceFOV(sourceFOV))
-	vertOffset = getVertOffsetFromSourceFOV(sourceFOV)
+	vertOffset = rad2Deg(getVertOffsetFromSourceFOV(sourceFOV))
     //printl(rad2Deg(vertOffset))
 	//3 increments per vertOffset
     
     //Clamp windowVertOrigin:
     if(windowVertOrigin >= VERT_MAX - vertOffset - EPSILON){
         windowVertOrigin = ceil((VERT_MAX - vertOffset)/WINDOW_INCREMENT) * WINDOW_INCREMENT
-        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + rad2Deg(windowVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + windowVertOrigin + ")")
     }
     else if (windowVertOrigin <= VERT_MIN + vertOffset + EPSILON){
         windowVertOrigin = floor((VERT_MIN + vertOffset)/WINDOW_INCREMENT) * WINDOW_INCREMENT
-        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + rad2Deg(windowVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSilent(" + windowVertOrigin + ")")
     }
     
     //Clamp randomVertOrigin:
     if(randomVertOrigin >= VERT_MAX - vertOffset - EPSILON){
         randomVertOrigin = VERT_MAX - vertOffset
-        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + rad2Deg(randomVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + randomVertOrigin + ")")
     }
     else if (randomVertOrigin <= VERT_MIN + vertOffset + EPSILON){
         randomVertOrigin = VERT_MIN + vertOffset
-        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + rad2Deg(randomVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSilent(" + randomVertOrigin + ")")
     }
     
-	//printl("vertOffset: " + rad2Deg(vertOffset))
-	//printl("walkIncrement: " + rad2Deg(walkIncrement))
 	uMin = -uOffset
 	uMax = uOffset
     
@@ -128,7 +130,7 @@ function raiseWindow(){
         if(windowVertOrigin > -1 * EPSILON && windowVertOrigin < EPSILON){
             windowVertOrigin = 0.0
         }
-        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + windowVertOrigin + ")")
         
         //move floating text
         moveFloatingTextHelper("floating_play")
@@ -144,7 +146,7 @@ function lowerWindow(){
         if(windowVertOrigin > -1 * EPSILON && windowVertOrigin < EPSILON){
             windowVertOrigin = 0.0
         }
-        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + rad2Deg(windowVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "moveWindowSuccess(" + windowVertOrigin + ")")
         
         //move floating text
         moveFloatingTextHelper("floating_play")
@@ -157,7 +159,7 @@ function lowerWindow(){
 function randomizeWindow(){
     if(spawnMode == SPAWN_RANDOM){
         randomVertOrigin = RandomFloat(VERT_MIN + vertOffset, VERT_MAX - vertOffset)
-        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSuccess(" + rad2Deg(randomVertOrigin) + ")")
+        EntFire("main_logic_script", "RunScriptCode", "randomizeWindowSuccess(" + randomVertOrigin + ")")
         
         //move floating text
         moveFloatingTextHelper("floating_play")
@@ -172,13 +174,13 @@ function randomizeWindow(){
 //  Make target
 //------------------------------------------------------------------------------------------------------------------------
 function makeTarget() {
-    myVector <- Vector(rad2Deg(getRandomVert()), 0, 0)
+    myVector <- Vector(getRandomVert(), 0, 0)
 	m_hSpawner.SpawnEntityAtLocation(TARGET_ORIGIN, myVector)
 }
 
 function setYaw() {
-    yaw <- getHorzFromU(getRandomU())
-    myQAngle <- QAngle(0, rad2Deg(yaw), 0)
+    yaw <- rad2Deg(getHorzFromU(getRandomU()))
+    myQAngle <- QAngle(0, yaw, 0)
     caller.SetLocalAngles(myQAngle)
 }
 
@@ -190,38 +192,6 @@ function setRoll() {
 function setDistance() {
     myVector <- Vector(-rho, 0, 0)
     caller.SetLocalOrigin(myVector)
-}
-
-
-//Make target at a specific horz and vert
-//for debug purposes
-//Takes horz and vert in degrees
-function makeTargetAtLocation(horz, vert)
-{
-	local position = vertHorzToCartesian(rho, deg2Rad(horz), deg2Rad(vert))
-    //printl(position+TARGET_ORIGIN)
-	//acos only returns positive
-	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
-	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
-	local direction = Vector(
-			phi,
-			theta,
-			0)
-	m_hSpawner.SpawnEntityAtLocation(position + TARGET_ORIGIN, direction)
-}
-
-function makeTargetAtLocation2(horz, vert)
-{
-	local direction = Vector(0, 0, 0)
-	m_hSpawner.SpawnEntityAtLocation(TARGET_ORIGIN, direction)
-}
-
-
-function makeTargetAtWindowOrigin(){
-    //printl(windowVertOrigin)
-    makeTargetAtLocation(0, rad2Deg(randomVertOrigin))
-    printl(rad2Deg(vertOffset))
-    print(rad2Deg(getHorzFromU(uOffset)))
 }
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -251,18 +221,19 @@ function removeAllTargets()
 function moveFloatingTextHelper(entityName){
     local position = null
     if(spawnMode == SPAWN_WINDOWED){
-        position = vertHorzToCartesian(rho, 0.0, windowVertOrigin)
+        position = vertHorzToCartesian(rho, 0.0, deg2Rad(windowVertOrigin))
     }
     else if(spawnMode == SPAWN_RANDOM){
-        position = vertHorzToCartesian(rho, 0.0, randomVertOrigin)
+        position = vertHorzToCartesian(rho, 0.0, deg2Rad(randomVertOrigin))
     }
 
 	local phi = getSign(position.x) * rad2Deg(acos(position.z/rho))
 	local theta = position.x == 0 ? getSign(position.y) * 90 : rad2Deg(atan(position.y/position.x))
 	local direction = Vector(
-			phi,
-			theta,
-			0)
+        phi,
+        theta,
+        0
+    )
     position = position + TARGET_ORIGIN
     local moveArg = position.x + "," + position.z + "," + phi + "," + theta
     EntFire(entityName, "RunScriptCode", "move(" + moveArg + ")")
