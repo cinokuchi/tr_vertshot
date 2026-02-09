@@ -207,16 +207,8 @@ class SpawnSelector extends RadioButton{
         base.select(index)
     }
 }
-spawnSelector <- SpawnSelector(["spawn_random", "spawn_windowed", "spawn_walking", "spawn_nearby"])
+spawnSelector <- SpawnSelector(["spawn_random", "spawn_windowed"])
 
-function setSpawnNearby(){
-    spawnSelector.select(3)
-	EntFire("maker_logic_script", "RunScriptCode", "setSpawnNearby()")
-}
-function setSpawnWalking(){
-    spawnSelector.select(2)
-	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWalking()")
-}
 function setSpawnWindowed(){
     spawnSelector.select(1)
 	EntFire("maker_logic_script", "RunScriptCode", "setSpawnWindowed()")
