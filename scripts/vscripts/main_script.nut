@@ -259,6 +259,33 @@ function setTinyTargets(){
 	EntFire("maker_logic_script", "RunScriptCode", "setTinyTargets()")
 }
 
+
+//---------------------------------------------------------------------------------------------------------------------------
+// target speed
+//---------------------------------------------------------------------------------------------------------------------------
+targetSpeedSelector <- RadioButton(["no_speed", "slow_speed", "normal_speed", "fast_speed", "random_speed"])
+
+function setNoSpeed(){
+    targetSpeedSelector.select(0)
+	EntFire("maker_logic_script", "RunScriptCode", "setNoSpeed()")
+}
+function setSlowSpeed(){
+    targetSpeedSelector.select(1)
+    EntFire("maker_logic_script", "RunScriptCode", "setSlowSpeed()")
+}
+function setNormalSpeed(){
+    targetSpeedSelector.select(2)
+    EntFire("maker_logic_script", "RunScriptCode", "setNormalSpeed()")
+}
+function setFastSpeed(){
+    targetSpeedSelector.select(3)
+    EntFire("maker_logic_script", "RunScriptCode", "setFastSpeed()")
+}
+function setRandomSpeed(){
+    targetSpeedSelector.select(4)
+    EntFire("maker_logic_script", "RunScriptCode", "setRandomSpeed()")
+}
+
 //---------------------------------------------------------------------------------------------------------------------------
 // Precision and RefillOnKill
 //---------------------------------------------------------------------------------------------------------------------------
@@ -496,5 +523,5 @@ function setTargetDelay(delay){
 function debug(){
     EntFire("start_sound", "PlaySound", "")
     printl("debug fired")
-	EntFire("maker_logic_script", "RunScriptCode", "moveReflectors()")
+	EntFire("maker_logic_script", "RunScriptCode", "makeTarget()")
 }

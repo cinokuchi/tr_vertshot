@@ -26,7 +26,12 @@ SPAWN_RANDOM <- 3
 spawnMode <- SPAWN_RANDOM
 EPSILON <- 0.001 //for rounding errors
 
-
+NO_SPEED     <- 0
+SLOW_SPEED   <- 1
+NORMAL_SPEED <- 2
+FAST_SPEED   <- 3
+RANDOM_SPEED <- 4
+speedMode <- NO_SPEED
 
 //------------------------------------------------------------------------------------------------------------------------
 //  Helpers
@@ -96,6 +101,7 @@ function setFov(sourceFOV){
     
     moveFloatingTextHelper("floating_play")
     moveFloatingTextHelper("floating_autoplay")
+    moveReflectors()
 }
 
 function setSpawnWindowed(){
@@ -119,6 +125,22 @@ function setTinyTargets(){
     m_hSpawner = tinySpawner
 }
 
+function setNoSpeed(){
+    speedMode = NO_SPEED
+}
+function setSlowSpeed(){
+    speedMode = SLOW_SPEED
+}
+function setNormalSpeed(){
+    speedMode = NORMAL_SPEED
+}
+function setFastSpeed(){
+    speedMode = FAST_SPEED
+}
+function setRandomSpeed(){
+    speedMode = RANDOM_SPEED
+}
+
 function raiseWindow(){
     if(spawnMode == SPAWN_WINDOWED && windowVertOrigin < VERT_MAX - vertOffset - EPSILON){
         windowVertOrigin = windowVertOrigin + WINDOW_INCREMENT
@@ -130,6 +152,7 @@ function raiseWindow(){
         //move floating text
         moveFloatingTextHelper("floating_play")
         moveFloatingTextHelper("floating_autoplay")
+        moveReflectors()
     }
     else{
         EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
@@ -146,6 +169,7 @@ function lowerWindow(){
         //move floating text
         moveFloatingTextHelper("floating_play")
         moveFloatingTextHelper("floating_autoplay")
+        moveReflectors()
     }
     else{
         EntFire("main_logic_script", "RunScriptCode", "moveWindowFailure()")
@@ -189,6 +213,26 @@ function setDistance() {
     caller.SetLocalOrigin(myVector)
 }
 
+function setRotationSpeed() {
+    if(speedMode != NO_SPEED){
+        local speed = null
+        if(speedMode == SLOW_SPEED){
+            speed = 150
+        }
+        else if(speedMode == NORMAL_SPEED){
+            speed = 225
+        }
+        else if(speedMode == FAST_SPEED){
+            speed = 300
+        }
+        else if(speedMode == RANDOM_SPEED){
+            speed = RandomInt(150, 300)
+        }
+        caller.KeyValueFromFloat("maxspeed", getAngularSpeedFromLinearSpeed(rho, speed))
+        caller.AcceptInput("Start", null, null, null)
+    }
+}
+
 //------------------------------------------------------------------------------------------------------------------------
 //  Destroy all targets
 //---------------------------------------------------------------------------------------------------------------------------
@@ -210,6 +254,17 @@ function removeAllTargets()
 //------------------------------------------------------------------------------------------------------------------------
 //  Reflector walls
 //------------------------------------------------------------------------------------------------------------------------
+
+/*
+    Note - the origins of the reflector_pitch entities are slightly inside from the actual
+        center of the brush.
+    This is to fix the issue where targets can spawn inside the reflector wall and subsequently
+        not get reflected, causing them to bounce around the outside of the spawn area instead of inside.
+    By moving the origin slightly inwards, the reflector walls are now slightly outside of the spawn area.
+    I didn't calculate everything exactly this time I just moved the origins a bit and said "that looks good".
+    Small angle approximation says this should be okay but I didn't test that explicitly.
+*/
+
 
 /*
     Expects angles in radians

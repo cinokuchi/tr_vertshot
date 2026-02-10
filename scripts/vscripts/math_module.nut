@@ -29,6 +29,14 @@ function min(arg1, arg2){
 		return arg2
 }
 
+/*
+    hammer units per second linear speed
+    to degrees per second angular speed
+*/
+function getAngularSpeedFromLinearSpeed(radius, linearSpeed){
+    return rad2Deg(linearSpeed / radius)
+} 
+
 //Converts U to Horz
 function getHorzFromU(uRatio){
 	return asin(uRatio)
@@ -39,8 +47,8 @@ function getUFromHorz(horz){
 }
 
 //scale factors are arbitrary and are just to force a narrower spawn area
-VERT_SCALE_FACTOR <- 2.0/5
-HORZ_SCALE_FACTOR <- 2.0/5
+VERT_SCALE_FACTOR <- 2.0/4
+HORZ_SCALE_FACTOR <- 2.0/4
 /*
 	Takes degrees and returns radians
 	This formula calculates the VFOV, then
