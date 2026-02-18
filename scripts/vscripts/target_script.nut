@@ -2,7 +2,6 @@ rotatorHandle <- null
 
 function getHit(index)
 {
-    printl("hit")
     //Inform main script so it can increment score and decrement number of live targets
 	EntFire("main_logic_script", "RunScriptCode", "getHit(" + index + ")", 0, activator)
     

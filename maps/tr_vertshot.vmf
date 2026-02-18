@@ -2,7 +2,7 @@ versioninfo
 {
 	"editorversion" "400"
 	"editorbuild" "10428"
-	"mapversion" "495"
+	"mapversion" "513"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "495"
+	"mapversion" "513"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -946,7 +946,7 @@ world
 		{
 			"id" "2506"
 			"plane" "(512 512 2496) (512 -512 2496) (512 -512 2560)"
-			"material" "DEV/DEV_BLENDMEASURE"
+			"material" "TOOLS/TOOLSNODRAW"
 			"uaxis" "[0 1 0 0] 0.25"
 			"vaxis" "[0 0 -1 0] 0.25"
 			"rotation" "0"
@@ -957,7 +957,7 @@ world
 		{
 			"id" "2505"
 			"plane" "(-1024 1024 2496) (512 512 2496) (512 512 2560)"
-			"material" "DEV/DEV_BLENDMEASURE"
+			"material" "TOOLS/TOOLSNODRAW"
 			"uaxis" "[1 0 0 0] 0.25"
 			"vaxis" "[0 0 -1 0] 0.25"
 			"rotation" "0"
@@ -968,7 +968,7 @@ world
 		{
 			"id" "2504"
 			"plane" "(512 -512 2496) (-1024 -1024 2496) (-1024 -1024 2560)"
-			"material" "DEV/DEV_BLENDMEASURE"
+			"material" "TOOLS/TOOLSNODRAW"
 			"uaxis" "[1 0 0 0] 0.25"
 			"vaxis" "[0 0 -1 0] 0.25"
 			"rotation" "0"
@@ -11683,6 +11683,7 @@ entity
 	"targetname" "big_target_0"
 	"unlocked_sentence" "0"
 	"unlocked_sound" "0"
+	"vscripts" "target_0.nut"
 	"wait" "3"
 	connections
 	{
@@ -23798,6 +23799,21 @@ entity
 		"visgroupshown" "1"
 		"visgroupautoshown" "1"
 		"logicalpos" "[0 9000]"
+	}
+}
+entity
+{
+	"id" "24356"
+	"classname" "logic_script"
+	"targetname" "shoot_script"
+	"vscripts" "shoot_script.nut"
+	"origin" "-642.704 862.453 65"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
 	}
 }
 cameras
