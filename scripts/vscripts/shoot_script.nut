@@ -20,6 +20,16 @@
         //Seconds between ticks
         player.GetScriptScope().TICKDELAY <- 0.015
         
+        //Store a handle to the maker_script in the script scope
+        player.GetScriptScope().makerHandle <- null
+        //Callback to populate the maker handle
+        player.GetScriptScope().registerMaker <- function(){
+            printl("Received makerHandle " + caller + " in " + player)
+            makerHandle = caller
+        }
+        //Request that maker_script run the callback to populate the maker handle
+        DoEntFire("maker_logic_script", "RunScriptCode", "getMakerHandle()", 0, null, player)
+        
         //Declare and initialize the think function within that scope
         player.GetScriptScope().OnPlayerAttack <- function(){
             //self is a handle to a player object
@@ -47,7 +57,7 @@
                     local ticks = (0.5 + latency / TICKDELAY).tointeger()
                     
                     //Can't send vectors so we have to break them down into components and send those:
-                    local argument = "checkHit(" +
+                    local argument = "checkHits(" +
                         eye_position.x + "," +
                         eye_position.y + "," +
                         eye_position.z + "," +
@@ -58,7 +68,7 @@
                     ")"
                     
                     //Run on all targets
-                    EntFire("target_0_*", "RunScriptCode", argument)
+                    scope.makerHandle.AcceptInput("RunScriptCode", argument, self, self)
                     
                     scope.last_fire_time = fire_time
                 }

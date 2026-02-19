@@ -31,20 +31,12 @@ class LagRecord{
     }
 }
 
-circularBuffer <- CircularBuffer()
-
-function OnTick(){
-    circularBuffer.put(LagRecord(self.GetAbsAngles(), self.GetOrigin()))
-}
-
-function OnPostSpawn(){
-    AddThinkToEnt(self, "OnTick")
-}
-
 // Arbitrary "small number"
 EPSILON <- pow(10, -6)
-
-RADIUS_SQRD <- null
+// Circular buffer of lag records
+circularBuffer <- CircularBuffer()
+// Handle to maker_script
+makerHandle <- null
 
 /*
     Where O is the eye position as a vector,
@@ -78,4 +70,25 @@ function computeClosestApproach(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
     local P = O + D.Scale(t)
     // distance from target squared
     return (P - C).LengthSqr()
+}
+
+function OnTick(){
+    circularBuffer.put(LagRecord(self.GetAbsAngles(), self.GetOrigin()))
+}
+
+function registerMaker(){
+    //printl("Received maker handle " + caller)
+    makerHandle = caller
+}
+
+function OnPostSpawn(){
+    AddThinkToEnt(self, "OnTick")
+    //printl("Requesting registration for " + self)
+	DoEntFire("maker_logic_script", "RunScriptCode", "registerTarget0()", 0, null, self)
+}
+
+function die(){
+    //printl("dying " + self)
+    makerHandle.AcceptInput("RunScriptCode", "deregisterTarget0()", null, self)
+    self.GetRootMoveParent().Destroy()
 }

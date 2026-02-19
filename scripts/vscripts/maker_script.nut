@@ -234,14 +234,67 @@ function setRotationSpeed() {
 }
 
 //------------------------------------------------------------------------------------------------------------------------
-//  Remove all targets
+//  Target Handles
 //---------------------------------------------------------------------------------------------------------------------------
 
+targetTable <- {}
+
+function getMakerHandle(){
+    printl("received request for handle from " + caller)
+    EntFireByHandle(caller, "RunScriptCode", "registerMaker()", 0, null, self)
+}
+
+function registerTarget0() {
+    //printl("Received registration for " + caller)
+    targetTable[caller] <- null
+    caller.AcceptInput("RunScriptCode", "registerMaker()", null, self)
+}
+
+function deregisterTarget0() {
+    //printl("Received deregistration for " + caller)
+    delete targetTable[caller]
+}
+
+function checkHits(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
+    local argument = "checkHit(" +
+                        Ox+ "," +
+                        Oy + "," +
+                        Oz + "," +
+                        Dx + "," +
+                        Dy + "," +
+                        Dz + "," +
+                        tickOffset +
+                    ")"
+    foreach(handle,val  in targetTable){
+        handle.AcceptInput("RunScriptCode", argument, activator, self)
+    }
+}
 
 function removeAllTargets()
 {
-    //Broadcasts to all targets that they must destroy theirselves
-    EntFire("target_pitch_*", "KillHierarchy", "")
+    /*
+    printl("contents before removal:")
+    foreach(handle,val  in targetTable){
+        printl("\t" + handle)
+    }
+    */
+    
+    //can't modify a table as we iterate over it so make a list first
+    local targetList = []
+    foreach(handle,val  in targetTable){
+        targetList.push(handle)
+    }
+    foreach(handle in targetList){
+        handle.AcceptInput("RunScriptCode", "die()", null, self)
+    }
+    
+    
+    /*
+    printl("contents after removal:")
+    foreach(handle,val  in targetTable){
+        printl("\t" + handle)
+    }
+    */
 }
 
 //------------------------------------------------------------------------------------------------------------------------
