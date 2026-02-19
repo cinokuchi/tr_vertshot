@@ -13,7 +13,7 @@ class CircularBuffer{
         if(offset >= MAXSIZE){
             return null
         }
-        return backingArray[(nextIndex - offset - 1 + MAXSIZE) % MAXSIZE]
+        return backingArray[(nextIndex - 1 - offset + MAXSIZE) % MAXSIZE]
     }
 
     function put(val){
@@ -41,19 +41,41 @@ function OnPostSpawn(){
     AddThinkToEnt(self, "OnTick")
 }
 
+// Arbitrary "small number"
+EPSILON <- pow(10, -6)
+
+RADIUS_SQRD <- null
+
 /*
     Where O is the eye position as a vector,
     D is the eye direction as a vector,
     and tickOffset is the amount of ticks backwards to check the position of the target
 */
-function checkHit(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
+function computeClosestApproach(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
     local lagRecord = circularBuffer.get(tickOffset)
     if(lagRecord == null)
         return
-    local O = Vector(Ox, Oy, Oz)
+
+    // eye direction
     local D = Vector(Dx, Dy, Dz)
+    // target's plane normal vector
     local N = lagRecord.angle.Forward()
+    local denom = N.Dot(D)
+    // eye direction is parallel to plane
+    if(fabs(denom) < EPSILON)
+        return
+
+    // eye position
+    local O = Vector(Ox, Oy, Oz)
+    // target position
     local C = lagRecord.origin
-    printl("N: " + N + "; C: " + C + "; D: " + D + "; O: " + O)
-    //local t = -dot(O - C, N)/dot(D, N)
+    local t = -N.Dot(O - C) / N.Dot(D)
+    // target is behind the player
+    if(t < 0)
+        return
+    
+    // closest point of shot to target
+    local P = O + D.Scale(t)
+    // distance from target squared
+    return (P - C).LengthSqr()
 }

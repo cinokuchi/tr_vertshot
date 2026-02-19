@@ -2,11 +2,11 @@ IncludeScript("math_module.nut")
 
 //---------------------------------------------------------------------------------------------------------------------------
 bigSpawner <- Entities.CreateByClassname("env_entity_maker")
-bigSpawner.__KeyValueFromString( "EntityTemplate", "big_targetTemplate")
+bigSpawner.__KeyValueFromString( "EntityTemplate", "target_template_big")
 smallSpawner <- Entities.CreateByClassname("env_entity_maker")
-smallSpawner.__KeyValueFromString( "EntityTemplate", "small_targetTemplate")
+smallSpawner.__KeyValueFromString( "EntityTemplate", "target_template_small")
 tinySpawner <- Entities.CreateByClassname("env_entity_maker")
-tinySpawner.__KeyValueFromString( "EntityTemplate", "tiny_targetTemplate")
+tinySpawner.__KeyValueFromString( "EntityTemplate", "target_template_tiny")
 
 m_hSpawner <- bigSpawner
 
@@ -217,16 +217,16 @@ function setRotationSpeed() {
     if(speedMode != NO_SPEED){
         local speed = null
         if(speedMode == SLOW_SPEED){
-            speed = 150
+            speed = 50
         }
         else if(speedMode == NORMAL_SPEED){
-            speed = 225
+            speed = 125
         }
         else if(speedMode == FAST_SPEED){
-            speed = 300
+            speed = 200
         }
         else if(speedMode == RANDOM_SPEED){
-            speed = RandomInt(150, 300)
+            speed = RandomInt(50, 200)
         }
         caller.KeyValueFromFloat("maxspeed", getAngularSpeedFromLinearSpeed(rho, speed))
         caller.AcceptInput("Start", null, null, null)
@@ -241,15 +241,7 @@ function setRotationSpeed() {
 function removeAllTargets()
 {
     //Broadcasts to all targets that they must destroy theirselves
-    if(m_hSpawner == bigSpawner){
-        EntFire("big_target_pitch*", "KillHierarchy", "")
-    }
-    else if(m_hSpawner == smallSpawner){
-        EntFire("small_target_pitch*", "KillHierarchy", "")
-    }
-    else if(m_hSpawner == tinySpawner){
-        EntFire("tiny_target_pitch*", "KillHierarchy", "")
-    }
+    EntFire("target_pitch_*", "KillHierarchy", "")
 }
 
 //------------------------------------------------------------------------------------------------------------------------

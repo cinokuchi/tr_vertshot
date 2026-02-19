@@ -58,7 +58,7 @@
                     ")"
                     
                     //Run on all targets
-                    EntFire("big_target_0*", "RunScriptCode", argument)
+                    EntFire("target_0_*", "RunScriptCode", argument)
                     
                     scope.last_fire_time = fire_time
                 }
