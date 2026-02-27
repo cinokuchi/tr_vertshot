@@ -35,6 +35,7 @@ circularBuffer <- CircularBuffer()
 
 function OnTick(){
     circularBuffer.put(LagRecord(self.GetAbsAngles(), self.GetOrigin()))
+    return -1
 }
 
 function OnPostSpawn(){

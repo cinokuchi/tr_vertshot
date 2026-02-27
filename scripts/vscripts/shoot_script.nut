@@ -63,6 +63,7 @@
                     scope.last_fire_time = fire_time
                 }
             }
+            return -1
         }
         
         //Register function to trigger on every server tick
