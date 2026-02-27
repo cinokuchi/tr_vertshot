@@ -52,15 +52,25 @@ RADIUS_SQRD <- null
     D is the eye direction as a vector,
     and tickOffset is the amount of ticks backwards to check the position of the target
 */
-function computeClosestApproach(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
-    local lagRecord = circularBuffer.get(tickOffset)
-    if(lagRecord == null)
+function computeClosestApproach(Ox, Oy, Oz, Dx, Dy, Dz, tickFraction, lowTick){
+    local lowLagRecord = circularBuffer.get(lowTick)
+    local highLagRecord = circularBuffer.get(lowTick + 1)
+    if(lowLagRecord == null || highLagRecord == null)
         return
+    
+    // Do interpolation
+    // target's plane normal vector
+    local lowN = lowLagRecord.angle.Forward()
+    local highN = highLagRecord.angle.Forward()
+    local N = (lowN - highN) * tickFraction + highN
+    // target positioon
+    local lowC = lowLagRecord.origin
+    local highC = highLagRecord.origin
+    local C = (lowC - highC) * tickFraction + highC
+
 
     // eye direction
     local D = Vector(Dx, Dy, Dz)
-    // target's plane normal vector
-    local N = lagRecord.angle.Forward()
     local denom = N.Dot(D)
     // eye direction is parallel to plane
     if(fabs(denom) < EPSILON)
@@ -68,8 +78,6 @@ function computeClosestApproach(Ox, Oy, Oz, Dx, Dy, Dz, tickOffset){
 
     // eye position
     local O = Vector(Ox, Oy, Oz)
-    // target position
-    local C = lagRecord.origin
     local t = -N.Dot(O - C) / N.Dot(D)
     // target is behind the player
     if(t < 0)

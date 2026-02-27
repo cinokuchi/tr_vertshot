@@ -44,7 +44,9 @@
                         printl("is not listen host")
                     }
                     //Combined latency in ticks:
-                    local ticks = (0.5 + latency / TICKDELAY).tointeger()
+                    local rawTick = latency / TICKDELAY
+                    local lowTick = rawTick.tointeger()
+                    local tickFraction = rawTick - lowTick
                     
                     //Can't send vectors so we have to break them down into components and send those:
                     local argument = "checkHit(" +
@@ -54,7 +56,8 @@
                         eye_fwd.x + "," +
                         eye_fwd.y + "," +
                         eye_fwd.z + "," +
-                        ticks +
+                        tickFraction + "," +
+                        lowTick +
                     ")"
                     
                     //Run on all targets
