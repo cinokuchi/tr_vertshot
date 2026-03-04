@@ -10,3 +10,5 @@
 !README.md
 !maps/tr_vertshot.vmf
 !scripts/vscripts/*
+!scripts/vscripts/targets/*
+!scripts/vscripts/reflectors/*
